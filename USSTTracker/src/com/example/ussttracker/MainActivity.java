@@ -120,8 +120,7 @@ public class MainActivity extends Activity {
 				{
 					// reads just the gpsCoords from the message and ignores the filter
 					gpsCoords = message.substring(19);
-					// reads the messageBody of the sms and then sets the TextView to display the message
-					textview.setText(gpsCoords);
+					parseGPS(gpsCoords);
 				}
 				
 			}
@@ -135,11 +134,12 @@ public class MainActivity extends Activity {
 	}
 	
 	/**
-	 * takes the message and parses the string for the gps latitude and longtitude
-	 * @param coords has 2 floats seperated by white space.  it can handle a blank string
+	 * takes the message and parses the string for the gps latitude and longitude
+	 * @param coords has 2 floats separated by white space.  it can handle a blank string
 	 */
 	private void parseGPS(String coords)
 	{
+		textview.setText(coords);
 		if(coords.equals(""))
 		{
 			setZero();
@@ -147,11 +147,11 @@ public class MainActivity extends Activity {
 		Scanner sc = new Scanner(coords);
 		if(sc.hasNextFloat())
 		{
-			float longtitude = sc.nextFloat();
+			float longitude = sc.nextFloat();
 			if(sc.hasNextFloat())
 			{
 				float latitude = sc.nextFloat();
-				adjustView(longtitude, latitude);
+				adjustView(longitude, latitude);
 			}
 		}
 		
