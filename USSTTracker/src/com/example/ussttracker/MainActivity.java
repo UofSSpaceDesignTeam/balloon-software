@@ -1,5 +1,7 @@
 package com.example.ussttracker;
 
+import java.util.Scanner;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -18,22 +21,30 @@ public class MainActivity extends Activity {
 	/**
 	 * Textview of the app, this is used for testing and currently prints the message from a text.
 	 */
-	TextView message;
+	TextView textview;
+	
+	// the image for the arrow that will spin
+	ImageView arrow;
 	
 	/**
 	 * BroadcastReceiver that receives sms alerts 
 	 * this is different from the smsReceiver Object 
 	 */
-	BroadcastReceiver thisReceiver;
+	private BroadcastReceiver thisReceiver;
 	
 	/**
 	 * this describes what type of message the receiver should receive
 	 */
-	IntentFilter smsFilter;
+	private IntentFilter smsFilter;
 	
-	//The filter number is the first 4 digits of a Gmail sms message number 
-	//Unconfirmed for other service providers from sasktel
-	String filterNumber = "1000";
+	//The first part of the incoming message must be this for the receiver to read it
+	private final String filterText = "usstRoverGPSCoords ";
+	
+	//The gps coordinates sent to this phone via sms
+	private String gpsCoords;
+	
+	//The sms receiver that runs in the background and stores gps coords when this app is inactive
+	private smsReceiver s;
 	
 	/**
 	 * This function is called by the phone when the app is first started
@@ -44,20 +55,40 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setUpTextView();
+		setUpArrow();
+		s = new smsReceiver();
+		//make the filter look for sms messages
+		smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
 		
 	}
 	
 	/**
-	 * onResume is called automatically by the phone after onCreate.
-	 * This is where you create things that need to also be deleted or start animations.
+	 * set up the imageview for the arrow and start the arrow facing North
+	 */
+	private void setUpArrow() 
+	{
+		arrow = (ImageView) findViewById(R.id.Arrow);
+		arrow.setRotation(270);
+//		Matrix matrix=new Matrix();
+//		arrow.setScaleType(ScaleType.MATRIX);   //required
+//		matrix.postRotate((float) 270, arrow.getX(), arrow.getY());
+//		arrow.setImageMatrix(matrix);
+	}
+
+	/**
+	 * onResume is called automatically by the phone when the app is active
+	 * This is where you create things that need to also be deleted when the app isn't shown or start animations.
 	 * You need an onPause function if you create an onResume function otherwise you will get an error
 	 */
 	@Override
 	protected void onResume() 
 	{
 		super.onResume();
-		//make the filter look for sms messages
-		smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+		
+		//get the most recent coords from the sms receiver and then parse the string
+		gpsCoords = s.receivedGPSCoords;
+		parseGPS(gpsCoords);
+		
 		//create a broadcastreceiver to look for sms messages
 		thisReceiver = new BroadcastReceiver() {
 			
@@ -82,15 +113,15 @@ public class MainActivity extends Activity {
 						messages[i] = android.telephony.SmsMessage.createFromPdu((byte[]) pdus[i]);	
 					}
 				}
-				// get the phone number from the message and then take the first 4 numbers of it
-				String phNum = messages[0].getOriginatingAddress();
-				String first4Num = phNum.substring(0, 4);
-				// test if the phone number is from a gmail account
-				// this will have to be changed if Gmail numbers change according to service providers
-				if(filterNumber.equals(first4Num))
+				//Test if the message received has the filter in it
+				String message = messages[0].getMessageBody();
+				String firstWord = message.substring(0, 19);
+				if(filterText.equals(firstWord))
 				{
+					// reads just the gpsCoords from the message and ignores the filter
+					gpsCoords = message.substring(19);
 					// reads the messageBody of the sms and then sets the TextView to display the message
-					message.setText(messages[0].getMessageBody());
+					textview.setText(gpsCoords);
 				}
 				
 			}
@@ -102,6 +133,49 @@ public class MainActivity extends Activity {
 		registerReceiver(thisReceiver, smsFilter);
 		
 	}
+	
+	/**
+	 * takes the message and parses the string for the gps latitude and longtitude
+	 * @param coords has 2 floats seperated by white space.  it can handle a blank string
+	 */
+	private void parseGPS(String coords)
+	{
+		if(coords.equals(""))
+		{
+			setZero();
+		}
+		Scanner sc = new Scanner(coords);
+		if(sc.hasNextFloat())
+		{
+			float longtitude = sc.nextFloat();
+			if(sc.hasNextFloat())
+			{
+				float latitude = sc.nextFloat();
+				adjustView(longtitude, latitude);
+			}
+		}
+		
+	}
+
+	/**
+	 * Sets up the Arrow and calculates distance between you and the gpsCoords
+	 * @param longtitude
+	 * @param latitude
+	 */
+	private void adjustView(float longtitude, float latitude) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * when the app is first open set the message to "0"
+	 */
+	private void setZero() 
+	{
+		
+		textview.setText("0");		
+	}
+
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -114,10 +188,7 @@ public class MainActivity extends Activity {
 	 */
 	private void setUpTextView() 
 	{
-		message = (TextView) findViewById(R.id.Message);
-		String str = "hello";
-		String str1 = str.substring(0, 4);
-		message.setText(str1 + " " + str.substring(0,3) );
+		textview = (TextView) findViewById(R.id.Message);
 	}
 
 	/**

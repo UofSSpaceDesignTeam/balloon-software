@@ -16,9 +16,12 @@ import android.widget.Toast;
  */
 public class smsReceiver extends BroadcastReceiver 
 {
-	//The filter number is the first 4 digits of a Gmail sms message number 
-	//Unconfirmed for other service providers from sasktel
-	String filterNumber = "1000";
+	//The first part of the incoming message must be this for the receiver to read it
+	String filterText = "usstRoverGPSCoords ";
+	
+	//This is where the most recent message will be stored before it gets deleted
+	//This is because the smsReceiver is always running and the activity isn't
+	public String receivedGPSCoords = "";
 
 	/**
 	 * On receive is called when the Broadcast Receiver gets an sms message 
@@ -45,13 +48,14 @@ public class smsReceiver extends BroadcastReceiver
 				messages[i] = android.telephony.SmsMessage.createFromPdu((byte[]) pdus[i]);	
 			}
 		}
-		// get the phone number from the message and then take the first 4 numbers of it
-		String phNum = messages[0].getOriginatingAddress();
-		String first4Num = phNum.substring(0, 4);
-		// test if the phone number is from a gmail account
-		// this will have to be changed if Gmail numbers change according to service providers
-		if(filterNumber.equals(first4Num))
+		
+		//Test if the message received has the filter in it
+		String message = messages[0].getMessageBody();
+		String firstWord = message.substring(0, 19);
+		if(filterText.equals(firstWord))
 		{
+			//set the received message to the gps coords without the filter
+			receivedGPSCoords = message.substring(19);
 			// create a message on the phone saying you got a message
 			Toast.makeText(context, "got message", Toast.LENGTH_SHORT).show();
 			// delete the message so it doesn't alert any receivers with a lower priority
