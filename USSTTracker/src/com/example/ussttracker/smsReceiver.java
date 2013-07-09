@@ -1,4 +1,6 @@
 package com.example.ussttracker;
+import java.util.Scanner;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,11 +19,39 @@ import android.widget.Toast;
 public class smsReceiver extends BroadcastReceiver 
 {
 	//The first part of the incoming message must be this for the receiver to read it
-	String filterText = "usstRoverGPSCoords ";
+	private String filterText = "usstGPS ";
+
+	private MainActivity trackerApp;
 	
-	//This is where the most recent message will be stored before it gets deleted
-	//This is because the smsReceiver is always running and the activity isn't
-	public String receivedGPSCoords = "";
+	public smsReceiver(MainActivity app)
+	{
+		trackerApp = app;
+	}
+	
+	/**
+	 * takes the message and parses the string for the gps latitude and longitude
+	 * @param coords has 2 floats separated by white space.  it can handle a blank string
+	 */
+	private void parseGPS(String coords)
+	{
+		if(coords.equals(""))
+		{
+		}
+		Scanner sc = new Scanner(coords);
+		if(sc.hasNextFloat())
+		{
+			double nlatitude = sc.nextFloat();
+			if(sc.hasNextFloat())
+			{
+				double nlongitude = sc.nextFloat();
+				//Make the conversion between degrees and kms
+				trackerApp.targetLatitude = trackerApp.LATITUDE_DEG_TO_KM*nlatitude;
+				trackerApp.targetLongitude = trackerApp.LONGITUDE_TO_KMS*Math.cos(nlatitude*(Math.PI/180))*(180/Math.PI)*nlongitude;
+			}
+		}
+		
+		
+	}
 
 	/**
 	 * On receive is called when the Broadcast Receiver gets an sms message 
@@ -41,26 +71,34 @@ public class smsReceiver extends BroadcastReceiver
 			// create an object pdus from searching the bundle for the key "pdus"
 			Object[] pdus = (Object[]) bundle.get("pdus");
 			messages = new android.telephony.SmsMessage[pdus.length];
-			
+
 			for(int i = 0;i<messages.length;i++)
 			{
 				// get the data out of the message and put it into your SmsMessage object
 				messages[i] = android.telephony.SmsMessage.createFromPdu((byte[]) pdus[i]);	
 			}
 		}
-		
+
 		//Test if the message received has the filter in it
 		String message = messages[0].getMessageBody();
-		String firstWord = message.substring(0, 19);
-		if(filterText.equals(firstWord))
+		if(message.length()<8)
 		{
-			//set the received message to the gps coords without the filter
-			receivedGPSCoords = message.substring(19);
-			// create a message on the phone saying you got a message
-			Toast.makeText(context, "got message", Toast.LENGTH_SHORT).show();
-			// delete the message so it doesn't alert any receivers with a lower priority
-			abortBroadcast();
+			String firstWord = message.substring(0, 8);
+			if(filterText.equals(firstWord))
+			{
+				//set the received message to the gps coords without the filter
+				parseGPS(message.substring(8));
+				// create a message on the phone saying you got a message
+				Toast.makeText(context, "got message", Toast.LENGTH_SHORT).show();
+				// delete the message so it doesn't alert any receivers with a lower priority
+				abortBroadcast();
+			}
 		}
+		else
+		{
+			
+		}
+
 
 	}
 
