@@ -5,11 +5,13 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.hardware.SensorManager;
 
 /**
  * 
@@ -22,8 +24,11 @@ public class MainActivity extends Activity {
 	 * message from a text.
 	 */
 	TextView textview;
-	
+	TextView datatext;
+
 	Boolean appActive;
+	
+	Boolean isChanged = false;
 
 	// the image for the arrow that will spin
 	ImageView arrow;
@@ -47,25 +52,29 @@ public class MainActivity extends Activity {
 
 	public double LATITUDE_DEG_TO_KM = 111.132;
 
-	@SuppressWarnings("unused")
 	private smsReceiver s;
 
 	@SuppressWarnings("unused")
 	private GPSTracker g;
 
 	// the latitude of the target in km
-	public double targetLatitude;
+	public double targetLatitude = 52;
 
 	// the longitude of the target in km
-	public double targetLongitude;
+	public double targetLongitude = -106;
 
 	// the longitude of the phone in km
-	public double phoneLatitude;
+	public double phoneLatitude = 0.0;
 
 	// the longitude of the phone in km
-	public double phoneLongitude;
+	public double phoneLongitude = 0.0;
 
 	private double North = 0;
+
+	double longDifference;
+	double latDifference;
+	Boolean phoneLatHigher = null;
+	Boolean phoneLongHigher = null;
 
 	SensorManager sMan;
 	Sensor magnetField;
@@ -82,10 +91,11 @@ public class MainActivity extends Activity {
 		setUpTextView();
 		setZero();
 		appActive = true;
-		s = new smsReceiver(this);
+		s = new smsReceiver();
 		g = new GPSTracker(this);
 		arrow = (ImageView) findViewById(R.id.Arrow);
 		setArrowAngle(North);
+		adjustView();
 		// First, get an instance of the SensorManager
 		sMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -97,8 +107,24 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onSensorChanged(SensorEvent event) {
-				
-				North = Math.round(event.values[0]);
+				float[] mGravity = null;
+				float[] mGeomagnetic = null;
+				if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+					mGravity = event.values;
+				if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+					mGeomagnetic = event.values;
+				if (mGravity != null && mGeomagnetic != null) {
+					float R[] = new float[9];
+					float I[] = new float[9];
+					boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+					if (success) {
+						float orientation[] = new float[3];
+						SensorManager.getOrientation(R, orientation);
+						double Azimut = orientation[0]; // orientation contains: azimut, pitch and roll
+						North = Math.round(Azimut);
+						
+					}
+				}
 			}
 
 			@Override
@@ -111,41 +137,71 @@ public class MainActivity extends Activity {
 		// Finally, register your listener
 		sMan.registerListener(magnetListener, magnetField,
 				SensorManager.SENSOR_DELAY_NORMAL);
-		
-		while(appActive)
+
+		Thread appView = new Thread()
 		{
-			adjustView();
-			try {
-				wait(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			@Override
+			public void run()
+			{
+				while(appActive)
+				{
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					updateTarget();
+					isChanged = true;
+				}
 			}
+
+
+
+		};
+		appView.start();
+		adjustView();
+		setUpUpdateButton();
+	}
+
+	private void setUpUpdateButton() 
+	{
+		Button updateButton = (Button) findViewById(R.id.updateButton);
+		updateButton.setOnClickListener(new View.OnClickListener() {
+			
+			public void onClick(View v) {
+				adjustView();
+			}
+		});
+	}
+
+	private void updateTarget() 
+	{
+		if(s.latitude == 0 && s.longitude == 0)
+		{
+			
 		}
-
-		// make the filter look for sms messages
-		// smsFilter = new
-		// IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-
+		else
+		{
+			targetLatitude = s.latitude;
+			targetLongitude = s.longitude;
+		}
 	}
 
 	/**
 	 * set up the imageview for the arrow and start the arrow facing North
-	 * 
 	 * @param degree
 	 *            must be between 0 and 360
 	 */
 	private void setArrowAngle(double degree) {
 		if (degree > 0 && degree < 360) {
-			double actualDegree = degree + 270 + North;
+			double actualDegree = degree + 90 + North;
 			arrow.setRotation((float) actualDegree);
-			// TODO update compass
-
+//			Matrix matrix=new Matrix();
+//			arrow.setScaleType(ScaleType.MATRIX); //required
+//			arrow.setImageMatrix(matrix);
+//			matrix.postRotate( (float) actualDegree,arrow.getWidth()/2, arrow.getHeight()/2);
 		}
-		// Matrix matrix=new Matrix();
-		// arrow.setScaleType(ScaleType.MATRIX); //required
-		// matrix.postRotate((float) 270, arrow.getX(), arrow.getY());
-		// arrow.setImageMatrix(matrix);
+
 	}
 
 	/**
@@ -159,128 +215,85 @@ public class MainActivity extends Activity {
 		super.onResume();
 		sMan.registerListener(magnetListener, magnetField,
 				SensorManager.SENSOR_DELAY_NORMAL);
-		
+
 		appActive = true;
-		// create a broadcastreceiver to look for sms messages
-		// thisReceiver = new BroadcastReceiver() {
-		//
-		// @Override
-		// public void onReceive(Context context, Intent intent)
-		// {
-		// // create a Bundle to store the information from the message
-		// // A bundle is just a data storage object
-		// Bundle bundle = intent.getExtras();
-		// // create an SmsMessages array initialized to null
-		// android.telephony.SmsMessage[] messages = null;
-		// // if the bundle contains information
-		// if(bundle !=null)
-		// {
-		// // create an object pdus from searching the bundle for the key "pdus"
-		// Object[] pdus = (Object[]) bundle.get("pdus");
-		// messages = new android.telephony.SmsMessage[pdus.length];
-		//
-		// for(int i = 0;i<messages.length;i++)
-		// {
-		// // get the data out of the message and put it into your SmsMessage
-		// object
-		// messages[i] = android.telephony.SmsMessage.createFromPdu((byte[])
-		// pdus[i]);
-		// }
-		// }
-		// //Test if the message received has the filter in it
-		// String message = messages[0].getMessageBody();
-		// textview.setText(message.substring(13));
-		// String firstWord = message.substring(0, 14);
-		// if(filterText.equals(firstWord))
-		// {
-		// // reads just the gpsCoords from the message and ignores the filter
-		// gpsCoords = message.substring(13);
-		// textview.setText(gpsCoords);
-		// abortBroadcast();
-		// }
-		//
-		// }
-		// };
-		// //Sets the priority of the broadcast Receiver to 8. The smsReceiver
-		// object is set to 6
-		// smsFilter.setPriority(8);
-		// //Registers the receiver to receive messages. it must be turned off
-		// in onPause or there will be an error.
-		// //If it isn't registered it won't receive any messages
-		// registerReceiver(thisReceiver, smsFilter);
-		//
 	}
 
 	/**
 	 * Sets up the Arrow and calculates distance between you and the gpsCoords
 	 */
-	private void adjustView() {
-		double longDifference;
-		double latDifference;
-		Boolean phoneLatHigher = null;
-		Boolean phoneLongHigher = null;
-
-		if (this.phoneLatitude < this.targetLatitude) {
-			phoneLatHigher = false;
-			latDifference = this.targetLatitude - this.phoneLatitude;
-		} else if (this.phoneLatitude > this.targetLatitude) {
-			phoneLatHigher = true;
-			latDifference = this.phoneLatitude - this.targetLatitude;
-		} else {
-			latDifference = 0;
-		}
-
-		if (this.phoneLongitude < this.targetLongitude) {
-			phoneLongHigher = true;
-			longDifference = this.targetLongitude - this.phoneLongitude;
-		} else if (this.targetLongitude < this.phoneLongitude) {
-			phoneLongHigher = false;
-			longDifference = this.phoneLongitude - this.targetLongitude;
-		} else {
-			longDifference = 0;
-		}
-		if (phoneLatHigher == null) {
-			if (phoneLongHigher) {
-				setArrowAngle(0);
-				this.textview.setText(longDifference + " Km");
-			} else if (!phoneLongHigher) {
-				setArrowAngle(180);
-				this.textview.setText(longDifference + " Km");
-			} else {
-				this.textview.setText("You are there... Or something went badly wrong and you should quit." +
-								"  This is probably an error because the likelihood of getting both gps " +
-								"and phone coords to be the exact same is really small");
-			}
-		} else if (phoneLongHigher == null) {
-			if (phoneLatHigher) {
-				setArrowAngle(270);
-				this.textview.setText(latDifference + " Km");
-			} else {
-				setArrowAngle(90);
-				this.textview.setText(latDifference + " Km");
-			}
-		}
-		double distanceToTarget = Math.sqrt(latDifference*latDifference + longDifference*longDifference);
-		this.textview.setText(distanceToTarget + " Km");
-		if(phoneLatHigher && phoneLongHigher)
+	private void adjustView() 
+	{
+		datatext.setText("Phone Latitude: " + this.phoneLatitude + " Phone Longitude: " + this.phoneLongitude 
+				+ " Target Latitude: " + this.targetLatitude + " Target Longitude: " + this.targetLongitude);
+		if(this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0 || this.targetLatitude == 0.0 || this.targetLongitude == 0.0)
 		{
-			setArrowAngle(270 + Math.atan(longDifference/latDifference));
-		}
-		else if(phoneLatHigher && !phoneLongHigher)
-		{
-			setArrowAngle(270 - Math.atan(longDifference/latDifference));	
-		}
-		else if(!phoneLatHigher && phoneLongHigher)
-		{
-			setArrowAngle(90 - Math.atan(longDifference/latDifference));
+			return;
 		}
 		else
 		{
-			setArrowAngle(90 + Math.atan(longDifference/latDifference));
+			if (this.phoneLatitude < this.targetLatitude) {
+				phoneLatHigher = false;
+				latDifference = this.targetLatitude - this.phoneLatitude;
+			} else if (this.phoneLatitude > this.targetLatitude) {
+				phoneLatHigher = true;
+				latDifference = this.phoneLatitude - this.targetLatitude;
+			} else {
+				latDifference = 0;
+				phoneLatHigher = null;
+			}
+
+			if (this.phoneLongitude < this.targetLongitude) {
+				phoneLongHigher = true;
+				longDifference = this.targetLongitude - this.phoneLongitude;
+			} else if (this.targetLongitude < this.phoneLongitude) {
+				phoneLongHigher = false;
+				longDifference = this.phoneLongitude - this.targetLongitude;
+			} else {
+				longDifference = 0;
+			}
+			if (phoneLatHigher == null) {
+				if (phoneLongHigher) {
+					setArrowAngle(0);
+					this.textview.setText(longDifference + " Km");
+				} else if (!phoneLongHigher) {
+					setArrowAngle(180);
+					this.textview.setText(longDifference + " Km");
+				} else {
+					this.textview.setText("You are there... Or something went badly wrong and you should quit." +
+							"  This is probably an error because the likelihood of getting both gps " +
+							"and phone coords to be the exact same is really small");
+				}
+			} else if (phoneLongHigher == null) {
+				if (phoneLatHigher) {
+					setArrowAngle(270);
+					this.textview.setText(latDifference + " Km");
+				} else {
+					setArrowAngle(90);
+					this.textview.setText(latDifference + " Km");
+				}
+			}
+			double distanceToTarget = Math.sqrt(latDifference*latDifference + longDifference*longDifference);
+			this.textview.setText(distanceToTarget + " Km");
+			if(phoneLatHigher && phoneLongHigher)
+			{
+				setArrowAngle(270 + Math.atan(longDifference/latDifference));
+			}
+			else if(phoneLatHigher && !phoneLongHigher)
+			{
+				setArrowAngle(270 - Math.atan(longDifference/latDifference));	
+			}
+			else if(!phoneLatHigher && phoneLongHigher)
+			{
+				setArrowAngle(90 - Math.atan(longDifference/latDifference));
+			}
+			else
+			{
+				setArrowAngle(90 + Math.atan(longDifference/latDifference));
+			}
 		}
-		
-		
-		// TODO Auto-generated method stub
+		this.textview.setText("North: " + North);
+
 
 	}
 
@@ -289,7 +302,7 @@ public class MainActivity extends Activity {
 	 */
 	private void setZero() {
 
-		textview.setText("0");
+		textview.setText("This is working");
 	}
 
 	@Override
@@ -306,6 +319,7 @@ public class MainActivity extends Activity {
 	 */
 	private void setUpTextView() {
 		textview = (TextView) findViewById(R.id.Message);
+		datatext = (TextView) findViewById(R.id.data);
 	}
 
 	/**

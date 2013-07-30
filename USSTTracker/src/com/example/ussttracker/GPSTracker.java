@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 
-public class GPSTracker extends Service implements LocationListener 
+public class GPSTracker extends Service implements LocationListener
 {
 	private MainActivity trackerApp;
 	 
@@ -65,8 +65,7 @@ public class GPSTracker extends Service implements LocationListener
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
-                                trackerApp.phoneLatitude = location.getLatitude();
-                                trackerApp.phoneLongitude = location.getLongitude();
+                                onLocationChanged(location);
                             }
                         }
                     }
@@ -83,8 +82,8 @@ public class GPSTracker extends Service implements LocationListener
 	@Override
 	public void onLocationChanged(Location arg0) 
 	{
-//		trackerApp.phoneLatitude = arg0.getLatitude()*trackerApp.LATITUDE_DEG_TO_KM;
-//		trackerApp.phoneLongitude = trackerApp.LONGITUDE_TO_KMS*Math.cos(arg0.getLatitude()*(Math.PI/180))*(180/Math.PI)*arg0.getLongitude();
+		trackerApp.phoneLatitude = arg0.getLatitude()*trackerApp.LATITUDE_DEG_TO_KM;
+		trackerApp.phoneLongitude = trackerApp.LONGITUDE_TO_KMS*Math.cos(arg0.getLatitude()*(Math.PI/180))*(180/Math.PI)*arg0.getLongitude();
 
 	}
 	

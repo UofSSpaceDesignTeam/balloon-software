@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="textview">TextView</string>
     <string name="desc">ImageView</string>
+    <string name="Update">Update</string>
 
 </resources>

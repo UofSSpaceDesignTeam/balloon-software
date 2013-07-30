@@ -20,12 +20,17 @@ public class smsReceiver extends BroadcastReceiver
 {
 	//The first part of the incoming message must be this for the receiver to read it
 	private String filterText = "usstGPS ";
-
-	private MainActivity trackerApp;
 	
-	public smsReceiver(MainActivity app)
-	{
-		trackerApp = app;
+	public Double latitude = 0.0;
+	
+	public Double longitude = 0.0;
+	
+	public double LONGITUDE_TO_KMS = 111.2;
+
+	public double LATITUDE_DEG_TO_KM = 111.132;
+	
+	public smsReceiver(){
+		
 	}
 	
 	/**
@@ -45,8 +50,8 @@ public class smsReceiver extends BroadcastReceiver
 			{
 				double nlongitude = sc.nextFloat();
 				//Make the conversion between degrees and kms
-				trackerApp.targetLatitude = trackerApp.LATITUDE_DEG_TO_KM*nlatitude;
-				trackerApp.targetLongitude = trackerApp.LONGITUDE_TO_KMS*Math.cos(nlatitude*(Math.PI/180))*(180/Math.PI)*nlongitude;
+				latitude = LATITUDE_DEG_TO_KM*nlatitude;
+				longitude = LONGITUDE_TO_KMS*Math.cos(nlatitude*(Math.PI/180))*(180/Math.PI)*nlongitude;
 			}
 		}
 		
@@ -78,6 +83,7 @@ public class smsReceiver extends BroadcastReceiver
 				messages[i] = android.telephony.SmsMessage.createFromPdu((byte[]) pdus[i]);	
 			}
 		}
+		
 
 		//Test if the message received has the filter in it
 		String message = messages[0].getMessageBody();
