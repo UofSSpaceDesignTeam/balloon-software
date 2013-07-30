@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -52,7 +53,6 @@ public class MainActivity extends Activity {
 
 	public double LATITUDE_DEG_TO_KM = 111.132;
 
-	private smsReceiver s;
 
 	@SuppressWarnings("unused")
 	private GPSTracker g;
@@ -91,7 +91,6 @@ public class MainActivity extends Activity {
 		setUpTextView();
 		setZero();
 		appActive = true;
-		s = new smsReceiver();
 		g = new GPSTracker(this);
 		arrow = (ImageView) findViewById(R.id.Arrow);
 		setArrowAngle(North);
@@ -114,6 +113,7 @@ public class MainActivity extends Activity {
 				if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
 					mGeomagnetic = event.values;
 				if (mGravity != null && mGeomagnetic != null) {
+					Log.d("verbose" ,mGravity + "" + mGeomagnetic);
 					float R[] = new float[9];
 					float I[] = new float[9];
 					boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
@@ -159,7 +159,9 @@ public class MainActivity extends Activity {
 
 		};
 		appView.start();
+		//set up the interface
 		adjustView();
+		//set up the button to renew the user interface
 		setUpUpdateButton();
 	}
 
@@ -174,17 +176,10 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	//change this for telnet
 	private void updateTarget() 
 	{
-		if(s.latitude == 0 && s.longitude == 0)
-		{
-			
-		}
-		else
-		{
-			targetLatitude = s.latitude;
-			targetLongitude = s.longitude;
-		}
+		
 	}
 
 	/**
@@ -194,7 +189,7 @@ public class MainActivity extends Activity {
 	 */
 	private void setArrowAngle(double degree) {
 		if (degree > 0 && degree < 360) {
-			double actualDegree = degree + 90 + North;
+			double actualDegree = degree - 90 + North;
 			arrow.setRotation((float) actualDegree);
 //			Matrix matrix=new Matrix();
 //			arrow.setScaleType(ScaleType.MATRIX); //required
