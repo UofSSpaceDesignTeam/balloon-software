@@ -1,16 +1,12 @@
 package com.example.ussttracker;
 
 import android.app.Activity;
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,35 +15,19 @@ import android.widget.TextView;
  * @author Dylan
  * 
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SensorEventListener {
 	/**
 	 * Textview of the app, this is used for testing and currently prints the
 	 * message from a text.
 	 */
 	TextView textview;
-	TextView datatext;
 
 	Boolean appActive;
-	
+
 	Boolean isChanged = false;
 
 	// the image for the arrow that will spin
 	ImageView arrow;
-
-	// /**
-	// * BroadcastReceiver that receives sms alerts
-	// * this is different from the smsReceiver Object
-	// */
-	// private BroadcastReceiver thisReceiver;
-
-	// /**
-	// * this describes what type of message the receiver should receive
-	// */
-	// private IntentFilter smsFilter;
-
-	// //The first part of the incoming message must be this for the receiver to
-	// read it
-	// private final String filterText = "usstgpscoords ";
 
 	public double LONGITUDE_TO_KMS = 111.2;
 
@@ -58,10 +38,10 @@ public class MainActivity extends Activity {
 	private GPSTracker g;
 
 	// the latitude of the target in km
-	public double targetLatitude = 52;
+	public double targetLatitude = 52*LATITUDE_DEG_TO_KM;
 
 	// the longitude of the target in km
-	public double targetLongitude = -106;
+	public double targetLongitude = -106*LONGITUDE_TO_KMS*Math.cos(52*(Math.PI/180))*(180/Math.PI);
 
 	// the longitude of the phone in km
 	public double phoneLatitude = 0.0;
@@ -69,16 +49,25 @@ public class MainActivity extends Activity {
 	// the longitude of the phone in km
 	public double phoneLongitude = 0.0;
 
-	private double North = 0;
+	private double angleOffset = 0;
+	private double distanceToTarget;
 
 	double longDifference;
 	double latDifference;
 	Boolean phoneLatHigher = null;
 	Boolean phoneLongHigher = null;
 
-	SensorManager sMan;
-	Sensor magnetField;
-	SensorEventListener magnetListener;
+	SensorManager sensorManager;
+	private Sensor sensorAccelerometer;
+	private Sensor sensorMagneticField;
+
+	private float[] valuesAccelerometer;
+	private float[] valuesMagneticField;
+
+	private float[] matrixR;
+	private float[] matrixI;
+	private float[] matrixValues;
+	Compass myCompass;
 
 	/**
 	 * This function is called by the phone when the app is first started It is
@@ -92,51 +81,19 @@ public class MainActivity extends Activity {
 		setZero();
 		appActive = true;
 		g = new GPSTracker(this);
-		arrow = (ImageView) findViewById(R.id.Arrow);
-		setArrowAngle(North);
 		adjustView();
-		// First, get an instance of the SensorManager
-		sMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		myCompass = (Compass)findViewById(R.id.mycompass);
 
-		// Second, get the sensor you're interested in
-		magnetField = sMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+		sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-		// Third, implement a SensorEventListener class
-		magnetListener = new SensorEventListener() {
+		valuesAccelerometer = new float[3];
+		valuesMagneticField = new float[3];
 
-			@Override
-			public void onSensorChanged(SensorEvent event) {
-				float[] mGravity = null;
-				float[] mGeomagnetic = null;
-				if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-					mGravity = event.values;
-				if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-					mGeomagnetic = event.values;
-				if (mGravity != null && mGeomagnetic != null) {
-					Log.d("verbose" ,mGravity + "" + mGeomagnetic);
-					float R[] = new float[9];
-					float I[] = new float[9];
-					boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-					if (success) {
-						float orientation[] = new float[3];
-						SensorManager.getOrientation(R, orientation);
-						double Azimut = orientation[0]; // orientation contains: azimut, pitch and roll
-						North = Math.round(Azimut);
-						
-					}
-				}
-			}
-
-			@Override
-			public void onAccuracyChanged(Sensor sensor, int accuracy) {
-				// do nothing
-
-			}
-		};
-
-		// Finally, register your listener
-		sMan.registerListener(magnetListener, magnetField,
-				SensorManager.SENSOR_DELAY_NORMAL);
+		matrixR = new float[9];
+		matrixI = new float[9];
+		matrixValues = new float[3];
 
 		Thread appView = new Thread()
 		{
@@ -151,6 +108,7 @@ public class MainActivity extends Activity {
 						e.printStackTrace();
 					}
 					updateTarget();
+					adjustView();
 					isChanged = true;
 				}
 			}
@@ -162,42 +120,15 @@ public class MainActivity extends Activity {
 		//set up the interface
 		adjustView();
 		//set up the button to renew the user interface
-		setUpUpdateButton();
 	}
 
-	private void setUpUpdateButton() 
-	{
-		Button updateButton = (Button) findViewById(R.id.updateButton);
-		updateButton.setOnClickListener(new View.OnClickListener() {
-			
-			public void onClick(View v) {
-				adjustView();
-			}
-		});
-	}
 
 	//change this for telnet
 	private void updateTarget() 
 	{
-		
-	}
-
-	/**
-	 * set up the imageview for the arrow and start the arrow facing North
-	 * @param degree
-	 *            must be between 0 and 360
-	 */
-	private void setArrowAngle(double degree) {
-		if (degree > 0 && degree < 360) {
-			double actualDegree = degree - 90 + North;
-			arrow.setRotation((float) actualDegree);
-//			Matrix matrix=new Matrix();
-//			arrow.setScaleType(ScaleType.MATRIX); //required
-//			arrow.setImageMatrix(matrix);
-//			matrix.postRotate( (float) actualDegree,arrow.getWidth()/2, arrow.getHeight()/2);
-		}
 
 	}
+
 
 	/**
 	 * onResume is called automatically by the phone when the app is active This
@@ -208,7 +139,11 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		sMan.registerListener(magnetListener, magnetField,
+		sensorManager.registerListener(this,
+				sensorAccelerometer,
+				SensorManager.SENSOR_DELAY_NORMAL);
+		sensorManager.registerListener(this,
+				sensorMagneticField,
 				SensorManager.SENSOR_DELAY_NORMAL);
 
 		appActive = true;
@@ -219,8 +154,6 @@ public class MainActivity extends Activity {
 	 */
 	private void adjustView() 
 	{
-		datatext.setText("Phone Latitude: " + this.phoneLatitude + " Phone Longitude: " + this.phoneLongitude 
-				+ " Target Latitude: " + this.targetLatitude + " Target Longitude: " + this.targetLongitude);
 		if(this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0 || this.targetLatitude == 0.0 || this.targetLongitude == 0.0)
 		{
 			return;
@@ -249,47 +182,40 @@ public class MainActivity extends Activity {
 			}
 			if (phoneLatHigher == null) {
 				if (phoneLongHigher) {
-					setArrowAngle(0);
-					this.textview.setText(longDifference + " Km");
+					angleOffset = 0;
+					distanceToTarget = longDifference ;
 				} else if (!phoneLongHigher) {
-					setArrowAngle(180);
-					this.textview.setText(longDifference + " Km");
+					angleOffset =180;
+					distanceToTarget =longDifference;
 				} else {
-					this.textview.setText("You are there... Or something went badly wrong and you should quit." +
-							"  This is probably an error because the likelihood of getting both gps " +
-							"and phone coords to be the exact same is really small");
 				}
 			} else if (phoneLongHigher == null) {
 				if (phoneLatHigher) {
-					setArrowAngle(270);
-					this.textview.setText(latDifference + " Km");
+					angleOffset =270;
+					distanceToTarget =latDifference;
 				} else {
-					setArrowAngle(90);
-					this.textview.setText(latDifference + " Km");
+					angleOffset =90;
+					distanceToTarget = latDifference;
 				}
 			}
-			double distanceToTarget = Math.sqrt(latDifference*latDifference + longDifference*longDifference);
-			this.textview.setText(distanceToTarget + " Km");
+			distanceToTarget = Math.sqrt(latDifference*latDifference + longDifference*longDifference);
 			if(phoneLatHigher && phoneLongHigher)
 			{
-				setArrowAngle(270 + Math.atan(longDifference/latDifference));
+				angleOffset =270 + Math.atan(longDifference/latDifference);
 			}
 			else if(phoneLatHigher && !phoneLongHigher)
 			{
-				setArrowAngle(270 - Math.atan(longDifference/latDifference));	
+				angleOffset =270 - Math.atan(longDifference/latDifference);	
 			}
 			else if(!phoneLatHigher && phoneLongHigher)
 			{
-				setArrowAngle(90 - Math.atan(longDifference/latDifference));
+				angleOffset =90 - Math.atan(longDifference/latDifference);
 			}
 			else
 			{
-				setArrowAngle(90 + Math.atan(longDifference/latDifference));
+				angleOffset =90 + Math.atan(longDifference/latDifference);
 			}
 		}
-		this.textview.setText("North: " + North);
-
-
 	}
 
 	/**
@@ -297,13 +223,16 @@ public class MainActivity extends Activity {
 	 */
 	private void setZero() {
 
-		textview.setText("This is working");
+		textview.setText("0 Kms");
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		sMan.unregisterListener(magnetListener, magnetField);
+		sensorManager.unregisterListener(this,
+				sensorAccelerometer);
+		sensorManager.unregisterListener(this,
+				sensorMagneticField);
 		appActive = false;
 		// Unregister the messagereceiver when the app is destroyed
 		// unregisterReceiver(thisReceiver);
@@ -314,7 +243,6 @@ public class MainActivity extends Activity {
 	 */
 	private void setUpTextView() {
 		textview = (TextView) findViewById(R.id.Message);
-		datatext = (TextView) findViewById(R.id.data);
 	}
 
 	/**
@@ -325,6 +253,41 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		switch(event.sensor.getType()){
+		case Sensor.TYPE_ACCELEROMETER:
+			for(int i =0; i < 3; i++){
+				valuesAccelerometer[i] = event.values[i];
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			for(int i =0; i < 3; i++){
+				valuesMagneticField[i] = event.values[i];
+			}
+			break;
+		}
+
+		boolean success = SensorManager.getRotationMatrix(
+				matrixR,
+				matrixI,
+				valuesAccelerometer,
+				valuesMagneticField);
+
+		if(success){
+			SensorManager.getOrientation(matrixR, matrixValues);
+
+			textview.setText(distanceToTarget + " KMs");
+			myCompass.update((float) (matrixValues[0] + angleOffset));
+		}
+
 	}
 
 }
