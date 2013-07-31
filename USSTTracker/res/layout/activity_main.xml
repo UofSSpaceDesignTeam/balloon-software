@@ -16,32 +16,11 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="42dp"
         android:text="@string/textview" />
-
-    <ImageView
-        android:id="@+id/Arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="174dp"
-        android:src="@drawable/arrow" android:contentDescription="@string/desc"/>
-
-    <TextView
-        android:id="@+id/data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/Message"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="71dp"
-        android:text="@string/textview" />
-
-    <Button
-        android:id="@+id/updateButton"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="@string/Update" />
+    
+      <view
+      class="com.example.ussttracker.Compass"
+      android:id="@+id/mycompass"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"/>
 
 </RelativeLayout>
