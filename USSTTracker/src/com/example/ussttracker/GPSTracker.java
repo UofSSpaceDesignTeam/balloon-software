@@ -82,8 +82,8 @@ public class GPSTracker extends Service implements LocationListener
 	@Override
 	public void onLocationChanged(Location arg0) 
 	{
-		trackerApp.phoneLatitude = arg0.getLatitude()*trackerApp.LATITUDE_DEG_TO_KM;
-		trackerApp.phoneLongitude = trackerApp.LONGITUDE_TO_KMS*Math.cos(arg0.getLatitude()*(Math.PI/180))*(180/Math.PI)*arg0.getLongitude();
+		trackerApp.phoneLatitude = arg0.getLatitude();
+		trackerApp.phoneLongitude = arg0.getLongitude();
 
 	}
 	

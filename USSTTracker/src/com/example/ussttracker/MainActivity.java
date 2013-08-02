@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ImageView;
@@ -33,15 +34,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	public double LATITUDE_DEG_TO_KM = 111.132;
 
-
 	@SuppressWarnings("unused")
 	private GPSTracker g;
 
 	// the latitude of the target in km
-	public double targetLatitude = 52*LATITUDE_DEG_TO_KM;
+	public double targetLatitude = 52.131101;
 
 	// the longitude of the target in km
-	public double targetLongitude = -106*LONGITUDE_TO_KMS*Math.cos(52*(Math.PI/180))*(180/Math.PI);
+	public double targetLongitude = -106.63403;
 
 	// the longitude of the phone in km
 	public double phoneLatitude = 0.0;
@@ -56,17 +56,19 @@ public class MainActivity extends Activity implements SensorEventListener {
 	double latDifference;
 	Boolean phoneLatHigher = null;
 	Boolean phoneLongHigher = null;
+	double startLongitude;
+	double startLatitude;
 
 	SensorManager sensorManager;
 	private Sensor sensorAccelerometer;
 	private Sensor sensorMagneticField;
 
-	private float[] valuesAccelerometer;
-	private float[] valuesMagneticField;
-
-	private float[] matrixR;
-	private float[] matrixI;
-	private float[] matrixValues;
+//	private float[] valuesAccelerometer;
+//	private float[] valuesMagneticField;
+//
+//	private float[] matrixR;
+//	private float[] matrixI;
+//	private float[] matrixValues;
 	Compass myCompass;
 
 	/**
@@ -82,53 +84,77 @@ public class MainActivity extends Activity implements SensorEventListener {
 		appActive = true;
 		g = new GPSTracker(this);
 		adjustView();
-		myCompass = (Compass)findViewById(R.id.mycompass);
+		myCompass = (Compass) findViewById(R.id.mycompass);
 
-		sensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-		sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		sensorAccelerometer = sensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sensorMagneticField = sensorManager
+				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-		valuesAccelerometer = new float[3];
-		valuesMagneticField = new float[3];
+//		valuesAccelerometer = new float[3];
+//		valuesMagneticField = new float[3];
+//
+//		matrixR = new float[9];
+//		matrixI = new float[9];
+//		matrixValues = new float[3];
+		
+		startLatitude = phoneLatitude;
+		startLongitude = phoneLongitude;
 
-		matrixR = new float[9];
-		matrixI = new float[9];
-		matrixValues = new float[3];
-
-		Thread appView = new Thread()
-		{
+		Thread appView = new Thread() {
 			@Override
-			public void run()
-			{
-				while(appActive)
-				{
+			public void run() {
+				float[] results1 = new float[3];
+				float[] results2 = new float[3];
+				while (appActive) {
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					updateTarget();
-					adjustView();
-					isChanged = true;
+					Location.distanceBetween(startLatitude, startLongitude, phoneLatitude, phoneLongitude, results1);
+					if(results1[0] > 3)
+					{
+						updateTarget();
+						Location.distanceBetween(phoneLatitude, phoneLongitude, targetLatitude, targetLongitude, results2);
+						myCompass.update((float) normalize(results1[1]) - normalize(results2[1]));
+						startLatitude = phoneLatitude;
+						startLongitude = phoneLongitude;
+					}
+//					updateTarget();
+//					adjustView();
+//					isChanged = true;
 				}
 			}
-
-
-
 		};
 		appView.start();
-		//set up the interface
+		// set up the interface
 		adjustView();
-		//set up the button to renew the user interface
+		// set up the button to renew the user interface
 	}
+	
 
-
-	//change this for telnet
-	private void updateTarget() 
+	private float normalize(float f)
 	{
-
+		if( 0<=f && f<=90)
+		{
+			return (f-90)*-1;
+		}
+		else if(90 < f && f <= 180)
+		{
+			return (f-450)*-1;
+		}
+		else
+		{
+			return -1*f + 90;
+		}
 	}
 
+	// change this for telnet
+	private void updateTarget() {
+
+	}
 
 	/**
 	 * onResume is called automatically by the phone when the app is active This
@@ -139,11 +165,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this,
-				sensorAccelerometer,
+		sensorManager.registerListener(this, sensorAccelerometer,
 				SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListener(this,
-				sensorMagneticField,
+		sensorManager.registerListener(this, sensorMagneticField,
 				SensorManager.SENSOR_DELAY_NORMAL);
 
 		appActive = true;
@@ -152,14 +176,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 	/**
 	 * Sets up the Arrow and calculates distance between you and the gpsCoords
 	 */
-	private void adjustView() 
-	{
-		if(this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0 || this.targetLatitude == 0.0 || this.targetLongitude == 0.0)
-		{
+	private void adjustView() {
+		if (this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0
+				|| this.targetLatitude == 0.0 || this.targetLongitude == 0.0) {
 			return;
-		}
-		else
-		{
+		} else {
 			if (this.phoneLatitude < this.targetLatitude) {
 				phoneLatHigher = false;
 				latDifference = this.targetLatitude - this.phoneLatitude;
@@ -183,37 +204,31 @@ public class MainActivity extends Activity implements SensorEventListener {
 			if (phoneLatHigher == null) {
 				if (phoneLongHigher) {
 					angleOffset = 0;
-					distanceToTarget = longDifference ;
+					distanceToTarget = longDifference;
 				} else if (!phoneLongHigher) {
-					angleOffset =180;
-					distanceToTarget =longDifference;
+					angleOffset = 180;
+					distanceToTarget = longDifference;
 				} else {
 				}
 			} else if (phoneLongHigher == null) {
 				if (phoneLatHigher) {
-					angleOffset =270;
-					distanceToTarget =latDifference;
+					angleOffset = 270;
+					distanceToTarget = latDifference;
 				} else {
-					angleOffset =90;
+					angleOffset = 90;
 					distanceToTarget = latDifference;
 				}
 			}
-			distanceToTarget = Math.sqrt(latDifference*latDifference + longDifference*longDifference);
-			if(phoneLatHigher && phoneLongHigher)
-			{
-				angleOffset =270 + Math.atan(longDifference/latDifference);
-			}
-			else if(phoneLatHigher && !phoneLongHigher)
-			{
-				angleOffset =270 - Math.atan(longDifference/latDifference);	
-			}
-			else if(!phoneLatHigher && phoneLongHigher)
-			{
-				angleOffset =90 - Math.atan(longDifference/latDifference);
-			}
-			else
-			{
-				angleOffset =90 + Math.atan(longDifference/latDifference);
+			distanceToTarget = Math.sqrt(latDifference * latDifference
+					+ longDifference * longDifference);
+			if (phoneLatHigher && phoneLongHigher) {
+				angleOffset = 270 + Math.atan(longDifference / latDifference);
+			} else if (phoneLatHigher && !phoneLongHigher) {
+				angleOffset = 270 - Math.atan(longDifference / latDifference);
+			} else if (!phoneLatHigher && phoneLongHigher) {
+				angleOffset = 90 - Math.atan(longDifference / latDifference);
+			} else {
+				angleOffset = 90 + Math.atan(longDifference / latDifference);
 			}
 		}
 	}
@@ -229,13 +244,16 @@ public class MainActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		sensorManager.unregisterListener(this,
-				sensorAccelerometer);
-		sensorManager.unregisterListener(this,
-				sensorMagneticField);
-		appActive = false;
+		sensorManager.unregisterListener(this, sensorAccelerometer);
+		sensorManager.unregisterListener(this, sensorMagneticField);
 		// Unregister the messagereceiver when the app is destroyed
 		// unregisterReceiver(thisReceiver);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		appActive = false;
+		super.onDestroy();
 	}
 
 	/**
@@ -262,32 +280,30 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		switch(event.sensor.getType()){
-		case Sensor.TYPE_ACCELEROMETER:
-			for(int i =0; i < 3; i++){
-				valuesAccelerometer[i] = event.values[i];
-			}
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			for(int i =0; i < 3; i++){
-				valuesMagneticField[i] = event.values[i];
-			}
-			break;
-		}
-
-		boolean success = SensorManager.getRotationMatrix(
-				matrixR,
-				matrixI,
-				valuesAccelerometer,
-				valuesMagneticField);
-
-		if(success){
-			SensorManager.getOrientation(matrixR, matrixValues);
-
-			textview.setText(distanceToTarget + " KMs");
-			myCompass.update((float) (matrixValues[0] + angleOffset));
-		}
+//		switch (event.sensor.getType()) {
+//		case Sensor.TYPE_ACCELEROMETER:
+//			for (int i = 0; i < 3; i++) {
+//				valuesAccelerometer[i] = event.values[i];
+//			}
+//			break;
+//		case Sensor.TYPE_MAGNETIC_FIELD:
+//			for (int i = 0; i < 3; i++) {
+//				valuesMagneticField[i] = event.values[i];
+//			}
+//			break;
+//		}
+//
+//		boolean success = SensorManager.getRotationMatrix(matrixR, matrixI,
+//				valuesAccelerometer, valuesMagneticField);
+//
+//		if (success) {
+//			SensorManager.getOrientation(matrixR, matrixValues);
+//			float[] results = new float[3];
+//			float[] results2 = new float[3];
+// 			Location.distanceBetween(phoneLatitude, phoneLongitude, 90, 90, results);
+//			Location.distanceBetween(phoneLatitude, phoneLongitude, targetLatitude, targetLongitude, results2);
+//			textview.setText("" + results[0] + " " + results[1] + " " + results[2]);
+//		}
 
 	}
-
 }
