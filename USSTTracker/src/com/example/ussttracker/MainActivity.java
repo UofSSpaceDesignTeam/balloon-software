@@ -1,5 +1,13 @@
 package com.example.ussttracker;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -7,6 +15,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,15 +58,16 @@ public class MainActivity extends Activity implements SensorEventListener {
 	// the longitude of the phone in km
 	public double phoneLongitude = 0.0;
 
-	private double angleOffset = 0;
-	private double distanceToTarget;
-
 	double longDifference;
 	double latDifference;
 	Boolean phoneLatHigher = null;
 	Boolean phoneLongHigher = null;
 	double startLongitude;
 	double startLatitude;
+	
+	URL u = null;
+	HttpURLConnection http = null;
+	InputStream is;
 
 	SensorManager sensorManager;
 	private Sensor sensorAccelerometer;
@@ -83,7 +93,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 		setZero();
 		appActive = true;
 		g = new GPSTracker(this);
-		adjustView();
+//		adjustView();
 		myCompass = (Compass) findViewById(R.id.mycompass);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -107,6 +117,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 			public void run() {
 				float[] results1 = new float[3];
 				float[] results2 = new float[3];
+				myCompass = (Compass) findViewById(R.id.mycompass);
+
+				sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+				sensorAccelerometer = sensorManager
+						.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				sensorMagneticField = sensorManager
+						.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 				while (appActive) {
 					try {
 						Thread.sleep(2000);
@@ -118,7 +135,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 					{
 						updateTarget();
 						Location.distanceBetween(phoneLatitude, phoneLongitude, targetLatitude, targetLongitude, results2);
-						myCompass.update((float) normalize(results1[1]) - normalize(results2[1]));
+						myCompass.update((float) normalize(results2[1]));
 						startLatitude = phoneLatitude;
 						startLongitude = phoneLongitude;
 					}
@@ -130,8 +147,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 		};
 		appView.start();
 		// set up the interface
-		adjustView();
-		// set up the button to renew the user interface
+//		adjustView();
 	}
 	
 
@@ -150,11 +166,41 @@ public class MainActivity extends Activity implements SensorEventListener {
 			return -1*f + 90;
 		}
 	}
+	
+	
 
-	// change this for telnet
 	private void updateTarget() {
-
+		if(u == null || http == null)
+		{
+			initURL();
+		}
+		else
+		{
+			
+		}
 	}
+
+	private void initURL() 
+	{
+		try {
+			u = new URL("http://api.aprs.fi/api/get?name=OH7RDA&what=loc&apikey=APIKEY&format=json");
+			http =(HttpURLConnection) u.openConnection();
+			http.setAllowUserInteraction(true);
+			http.connect();
+			is = http.getInputStream();
+			JsonReader reader = new JsonReader(new InputStreamReader(is));
+			reader.setLenient(true);
+			
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 
 	/**
 	 * onResume is called automatically by the phone when the app is active This
@@ -176,62 +222,62 @@ public class MainActivity extends Activity implements SensorEventListener {
 	/**
 	 * Sets up the Arrow and calculates distance between you and the gpsCoords
 	 */
-	private void adjustView() {
-		if (this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0
-				|| this.targetLatitude == 0.0 || this.targetLongitude == 0.0) {
-			return;
-		} else {
-			if (this.phoneLatitude < this.targetLatitude) {
-				phoneLatHigher = false;
-				latDifference = this.targetLatitude - this.phoneLatitude;
-			} else if (this.phoneLatitude > this.targetLatitude) {
-				phoneLatHigher = true;
-				latDifference = this.phoneLatitude - this.targetLatitude;
-			} else {
-				latDifference = 0;
-				phoneLatHigher = null;
-			}
-
-			if (this.phoneLongitude < this.targetLongitude) {
-				phoneLongHigher = true;
-				longDifference = this.targetLongitude - this.phoneLongitude;
-			} else if (this.targetLongitude < this.phoneLongitude) {
-				phoneLongHigher = false;
-				longDifference = this.phoneLongitude - this.targetLongitude;
-			} else {
-				longDifference = 0;
-			}
-			if (phoneLatHigher == null) {
-				if (phoneLongHigher) {
-					angleOffset = 0;
-					distanceToTarget = longDifference;
-				} else if (!phoneLongHigher) {
-					angleOffset = 180;
-					distanceToTarget = longDifference;
-				} else {
-				}
-			} else if (phoneLongHigher == null) {
-				if (phoneLatHigher) {
-					angleOffset = 270;
-					distanceToTarget = latDifference;
-				} else {
-					angleOffset = 90;
-					distanceToTarget = latDifference;
-				}
-			}
-			distanceToTarget = Math.sqrt(latDifference * latDifference
-					+ longDifference * longDifference);
-			if (phoneLatHigher && phoneLongHigher) {
-				angleOffset = 270 + Math.atan(longDifference / latDifference);
-			} else if (phoneLatHigher && !phoneLongHigher) {
-				angleOffset = 270 - Math.atan(longDifference / latDifference);
-			} else if (!phoneLatHigher && phoneLongHigher) {
-				angleOffset = 90 - Math.atan(longDifference / latDifference);
-			} else {
-				angleOffset = 90 + Math.atan(longDifference / latDifference);
-			}
-		}
-	}
+//	private void adjustView() {
+//		if (this.phoneLatitude == 0.0 || this.phoneLongitude == 0.0
+//				|| this.targetLatitude == 0.0 || this.targetLongitude == 0.0) {
+//			return;
+//		} else {
+//			if (this.phoneLatitude < this.targetLatitude) {
+//				phoneLatHigher = false;
+//				latDifference = this.targetLatitude - this.phoneLatitude;
+//			} else if (this.phoneLatitude > this.targetLatitude) {
+//				phoneLatHigher = true;
+//				latDifference = this.phoneLatitude - this.targetLatitude;
+//			} else {
+//				latDifference = 0;
+//				phoneLatHigher = null;
+//			}
+//
+//			if (this.phoneLongitude < this.targetLongitude) {
+//				phoneLongHigher = true;
+//				longDifference = this.targetLongitude - this.phoneLongitude;
+//			} else if (this.targetLongitude < this.phoneLongitude) {
+//				phoneLongHigher = false;
+//				longDifference = this.phoneLongitude - this.targetLongitude;
+//			} else {
+//				longDifference = 0;
+//			}
+//			if (phoneLatHigher == null) {
+//				if (phoneLongHigher) {
+//					angleOffset = 0;
+//					distanceToTarget = longDifference;
+//				} else if (!phoneLongHigher) {
+//					angleOffset = 180;
+//					distanceToTarget = longDifference;
+//				} else {
+//				}
+//			} else if (phoneLongHigher == null) {
+//				if (phoneLatHigher) {
+//					angleOffset = 270;
+//					distanceToTarget = latDifference;
+//				} else {
+//					angleOffset = 90;
+//					distanceToTarget = latDifference;
+//				}
+//			}
+//			distanceToTarget = Math.sqrt(latDifference * latDifference
+//					+ longDifference * longDifference);
+//			if (phoneLatHigher && phoneLongHigher) {
+//				angleOffset = 270 + Math.atan(longDifference / latDifference);
+//			} else if (phoneLatHigher && !phoneLongHigher) {
+//				angleOffset = 270 - Math.atan(longDifference / latDifference);
+//			} else if (!phoneLatHigher && phoneLongHigher) {
+//				angleOffset = 90 - Math.atan(longDifference / latDifference);
+//			} else {
+//				angleOffset = 90 + Math.atan(longDifference / latDifference);
+//			}
+//		}
+//	}
 
 	/**
 	 * when the app is first open set the message to "0"
