@@ -1,17 +1,26 @@
+
+//Usage instructions:
+// open serial monitor, press t, hit enter
+// remain quiet and still while the test runs
+// runtime is about 20 seconds
+
+
 void setup()
 {
   Serial.begin(115200);
-  pinMode(12,OUTPUT);
-  pinMode(3,OUTPUT);
-  digitalWrite(3,HIGH);
+  pinMode(6,OUTPUT);
+  pinMode(7,OUTPUT);
+  digitalWrite(6,HIGH);
+  digitalWrite(7,HIGH);
 }
 
 void loop()
 {
   if(Serial.available())
   {
-    if(Serial.read() == '1')
+    if(Serial.read() == 't')
     {
+      Serial.println("Running test...");
       digitalWrite(13,HIGH);
       long offset = 0;
       for(int i=0; i<20000; i++)
@@ -28,7 +37,7 @@ void loop()
         noise += abs(analogRead(0) - offset);
       }
       noise /= 20000L;
-      Serial.print("noise level is ");
+      Serial.print("Noise level is ");
       Serial.println(noise);
       
       long measurement = 0;
@@ -40,9 +49,9 @@ void loop()
       }
       noTone(12);
       measurement /= 20000L;
-      Serial.print("measured value is ");
+      Serial.print("Measured value is ");
       Serial.println(measurement);
-      Serial.print("net acoustic transfer is ");
+      Serial.print("Net acoustic transfer is ");
       Serial.println(measurement - noise);
       digitalWrite(13,LOW);
     }

@@ -9,6 +9,9 @@ int16_t ax, ay, az, pitch, roll, initialPitch, initialRoll;
 
 void setup()
 {
+  pinMode(7,OUTPUT);
+  digitalWrite(7,HIGH);
+  delay(500);
   Wire.begin();
   Serial.begin(115200);
 
