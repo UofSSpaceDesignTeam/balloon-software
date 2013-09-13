@@ -35,6 +35,8 @@ void setup()  // runs once at power up
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
     Serial.println("gyro is fail!");
+  if(!bmp.begin())
+    Serial.println("bmp is fail!");
   Serial.println("System power up and timer reset");
   ss.println("System power up and timer reset");
   lastLog = 0;
