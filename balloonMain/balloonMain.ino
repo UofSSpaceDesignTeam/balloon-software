@@ -1,5 +1,8 @@
 // Written for the September 2013 HAB launch by Jordan Kubica
 
+// note to self - power openlog from batt voltage
+// also disable emergency check in config file (set last digit to 1)
+
 // grab all the libraries for sensors
 #include <SoftwareSerial.h>  // for gps and datalogger
 #include <TinyGPS.h>  // for gps
@@ -29,6 +32,9 @@ void setup()  // runs once at power up
   Wire.begin();  // fire up the I2C interface
   Serial.begin(9600);  // main serial port for debug/radio interface
   ss.begin(9600);  // serial interface for the gps and datalogger
+  gyro.initialize();  // set up IMU
+  if(!gyro.testConnection())
+    Serial.println("gyro is fail!");
   Serial.println("System power up and timer reset");
   ss.println("System power up and timer reset");
   lastLog = 0;
@@ -54,7 +60,7 @@ void loop()
     }
   }
   
-  if(millis() - lastLog > 5000)  // log data every (5 + runtime) sec
+  if(millis() - lastLog > 10000)  // log data every (10 + runtime) sec
   {
     logData();
     lastLog = millis();

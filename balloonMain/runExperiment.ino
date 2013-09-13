@@ -3,6 +3,7 @@ void runExperiment()  // runs an acoustic measurement and records to logger, tak
 {
   Serial.println("run exp");
   //ss.println("run exp");
+  digitalWrite(13,HIGH);
   long offset = 0;
   for(int i=0; i<20000; i++)  // get DC output level of mic amp
   {
@@ -41,6 +42,7 @@ void runExperiment()  // runs an acoustic measurement and records to logger, tak
   Serial.print("net = ");
   Serial.println(measurement - noise);
   Serial.println("end exp");
+  digitalWrite(13,LOW);
   //ss.print("net = ");
   //ss.println(measurement - noise);
   //ss.println("end exp");
