@@ -1,7 +1,10 @@
 
-// data format is: timestamp,lat,lon,fix age,GPS alt,speed,course,pressure,temp,BMP alt,yaw,pitch,roll
+// data format is: timestamp,GPS time,lat,lon,fix age,GPS alt,speed,course,pressure,temp,BMP alt,yaw,pitch,roll
+// timestamp in milliseconds since power up
+// gps time in hhmmsscc UTC
 // lat, lon in millionths of a degree
 // GPS altitude in centimeters
+// fix age in milliseconds
 // speed in 100ths of a knot
 // course in 100ths of a degree
 // pressure in pascals
@@ -13,6 +16,8 @@ void logData()  // records gps and sensor data to logger
 {
   gyro.getRotation(&yawRate,&pitchRate,&rollRate);
   Serial.print(millis());
+  Serial.print(',');
+  Serial.print(time);
   Serial.print(',');
   Serial.print(lat);
   Serial.print(',');

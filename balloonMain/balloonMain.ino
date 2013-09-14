@@ -16,7 +16,7 @@ Adafruit_BMP085 bmp;  // pressure sensor
 
 // create global variables for use later
 long lat, lon, alt;  // gps position
-unsigned long fixAge, speed, course, lastLog, lastExp;  // gps and timing data
+unsigned long fixAge, speed, course, lastLog, lastExp, date, time;  // gps and timing data
 int16_t pitchRate, yawRate, rollRate;  // gyro data
 
 void setup()  // runs once at power up
@@ -31,10 +31,10 @@ void setup()  // runs once at power up
   ss.begin(9600);  // serial interface for the gps
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
-    Serial.println("gyro is fail!");
+    Serial.println("Gyro fail!");
   if(!bmp.begin())
-    Serial.println("bmp is fail!");
-  Serial.println("System power up and timer reset");
+    Serial.println("BMP fail!");
+  Serial.println("timestamp,gpsTime,lat,lon,fixAge,gpsAlt,speed,course,pressure,temp,bmpAlt,yaw,pitch,roll");
   lastLog = 0;
   lastExp = 0;
   fixAge = 0;
@@ -43,6 +43,7 @@ void setup()  // runs once at power up
   lat = 0;
   lon = 0;
   alt = 0;
+  time = 0;
 }
 
 void loop()
@@ -52,6 +53,7 @@ void loop()
     if(gps.encode(ss.read()));
     {
       gps.get_position(&lat,&lon,&fixAge);
+      gps.get_datetime(&date,&time);
       speed = gps.speed();
       course = gps.course();
       alt = gps.altitude();
