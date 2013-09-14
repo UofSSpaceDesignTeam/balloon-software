@@ -207,7 +207,7 @@ class I2Cdev {
     #define TW_MT_SLA_NACK      0x20
     #define TW_MT_DATA_NACK     0x30
     
-    #define CPU_FREQ            16000000L
+    #define CPU_FREQ            8000000L
     #define TWI_FREQ            100000L
     #define TWI_BUFFER_LENGTH   32
     

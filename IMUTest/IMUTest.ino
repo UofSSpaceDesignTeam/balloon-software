@@ -13,7 +13,7 @@ void setup()
   digitalWrite(7,HIGH);
   delay(500);
   Wire.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   Serial.println("Initializing...");
   imu.initialize();
