@@ -1,5 +1,5 @@
 
-// data format is: timestamp,GPS time,lat,lon,fix age,GPS alt,speed,course,pressure,temp,BMP alt,yaw,pitch,roll
+// data format is: timestamp,GPS time,lat,lon,GPS alt,fixAge,speed,course,pressure,temp,BMP alt,yaw,pitch,roll
 // timestamp in milliseconds since power up
 // gps time in hhmmsscc UTC
 // lat, lon in millionths of a degree
