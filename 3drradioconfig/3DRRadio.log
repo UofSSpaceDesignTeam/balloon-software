@@ -1,0 +1,242 @@
+2013-09-25 17:21:34,747 DEBUG ArdupilotMega.Utilities.ThemeManager - Theme set to None (:0) [1]
+2013-09-25 17:21:43,520  INFO ArdupilotMega._3DRradio - Connect btr 4 baud 57600 (:0) [1]
+2013-09-25 17:21:43,556  INFO ArdupilotMega._3DRradio - Connect first responce OK
+ 4 (:0) [1]
+2013-09-25 17:21:43,658  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:21:43,676  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:21:44,177  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:21:44,278  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:21:44,282  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:21:44,782  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:21:44,884  INFO ArdupilotMega._3DRradio - Doing Command ATI (:0) [1]
+2013-09-25 17:21:44,890  INFO ArdupilotMega._3DRradio - cmd ATI echo ATI
+ (:0) [1]
+2013-09-25 17:21:45,444  INFO ArdupilotMega._3DRradio - responce 0 SiK 1.6 on HM-TRP
+
+ (:0) [1]
+2013-09-25 17:21:45,444  INFO ArdupilotMega._3DRradio - Connect Version: SiK 1.6 on HM-TRP
+ (:0) [1]
+2013-09-25 17:21:45,547  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:21:45,561  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:21:46,062  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:21:46,163  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:21:46,168  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:21:46,669  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:21:46,771  INFO ArdupilotMega._3DRradio - Doing Command ATI (:0) [1]
+2013-09-25 17:21:46,776  INFO ArdupilotMega._3DRradio - cmd ATI echo ATI
+ (:0) [1]
+2013-09-25 17:21:47,331  INFO ArdupilotMega._3DRradio - responce 0 SiK 1.6 on HM-TRP
+
+ (:0) [1]
+2013-09-25 17:21:47,433  INFO ArdupilotMega._3DRradio - Doing Command RTI (:0) [1]
+2013-09-25 17:21:47,447  INFO ArdupilotMega._3DRradio - cmd RTI echo RTI
+ (:0) [1]
+2013-09-25 17:21:47,950  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:21:48,051  INFO ArdupilotMega._3DRradio - Doing Command RTI (:0) [1]
+2013-09-25 17:21:48,056  INFO ArdupilotMega._3DRradio - cmd RTI echo RTI
+ (:0) [1]
+2013-09-25 17:21:48,556  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:21:48,657  INFO ArdupilotMega._3DRradio - Doing Command ATI3 (:0) [1]
+2013-09-25 17:21:48,663  INFO ArdupilotMega._3DRradio - cmd ATI3 echo ATI3
+ (:0) [1]
+2013-09-25 17:21:49,215  INFO ArdupilotMega._3DRradio - responce 0 145
+
+ (:0) [1]
+2013-09-25 17:21:49,316  INFO ArdupilotMega._3DRradio - Doing Command ATI2 (:0) [1]
+2013-09-25 17:21:49,334  INFO ArdupilotMega._3DRradio - cmd ATI2 echo ATI2
+ (:0) [1]
+2013-09-25 17:21:49,886  INFO ArdupilotMega._3DRradio - responce 0 78
+
+ (:0) [1]
+2013-09-25 17:21:50,184  INFO ArdupilotMega._3DRradio - Doing Command ATI7 (:0) [1]
+2013-09-25 17:21:50,212  INFO ArdupilotMega._3DRradio - cmd ATI7 echo ATI7
+ (:0) [1]
+2013-09-25 17:21:50,771  INFO ArdupilotMega._3DRradio - responce 0 L/R RSSI: 23/0  L/R noise: 54/0 pkts: 0  txe=0 rxe=0 stx=0 srx=0 ecc=0/0 temp=-276 dco=0
+
+ (:0) [1]
+2013-09-25 17:21:50,873  INFO ArdupilotMega._3DRradio - Doing Command ATI5 (:0) [1]
+2013-09-25 17:21:50,883  INFO ArdupilotMega._3DRradio - cmd ATI5 echo ATI5
+ (:0) [1]
+2013-09-25 17:21:52,176  INFO ArdupilotMega._3DRradio - responce 0 S0: FORMAT=25
+
+S1: SERIAL_SPEED=57
+
+S2: AIR_SPEED=64
+
+S3: NETID=25
+
+S4: TXPOWER=20
+
+S5: ECC=1
+
+S6: MAVLINK=1
+
+S7: OPPRESEND=1
+
+S8: MIN_FREQ=915000
+
+S9: MAX_FREQ=928000
+
+S10: NUM_CHANNELS=50
+
+S11: DUTY_CYCLE=100
+
+S12: LBT_RSSI=0
+
+S13: MANCHESTER=0
+
+S14: RTSCTS=0
+
+ (:0) [1]
+2013-09-25 17:21:52,298  INFO ArdupilotMega._3DRradio - Doing Command RTI5 (:0) [1]
+2013-09-25 17:21:52,306  INFO ArdupilotMega._3DRradio - cmd RTI5 echo RTI5
+ (:0) [1]
+2013-09-25 17:21:52,807  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:21:52,908  INFO ArdupilotMega._3DRradio - Doing Command RTI5 (:0) [1]
+2013-09-25 17:21:52,914  INFO ArdupilotMega._3DRradio - cmd RTI5 echo RTI5
+ (:0) [1]
+2013-09-25 17:21:53,414  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:21:53,515  INFO ArdupilotMega._3DRradio - Doing Command ATO (:0) [1]
+2013-09-25 17:21:53,521  INFO ArdupilotMega._3DRradio - cmd ATO echo ATO
+ (:0) [1]
+2013-09-25 17:21:54,023  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:21:54,124  INFO ArdupilotMega._3DRradio - Doing Command ATO (:0) [1]
+2013-09-25 17:21:55,125  INFO ArdupilotMega._3DRradio - cmd ATO echo  (:0) [1]
+2013-09-25 17:21:55,626  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:26:08,557  INFO ArdupilotMega._3DRradio - Connect btr 4 baud 57600 (:0) [1]
+2013-09-25 17:26:08,557  INFO ArdupilotMega._3DRradio - Connect first responce OK
+ 4 (:0) [1]
+2013-09-25 17:26:08,658  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:26:08,671  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:26:09,172  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:26:09,273  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:26:09,278  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:26:09,778  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:26:09,879  INFO ArdupilotMega._3DRradio - Doing Command ATI (:0) [1]
+2013-09-25 17:26:09,885  INFO ArdupilotMega._3DRradio - cmd ATI echo ATI
+ (:0) [1]
+2013-09-25 17:26:10,440  INFO ArdupilotMega._3DRradio - responce 0 SiK 1.6 on HM-TRP
+
+ (:0) [1]
+2013-09-25 17:26:10,440  INFO ArdupilotMega._3DRradio - Connect Version: SiK 1.6 on HM-TRP
+ (:0) [1]
+2013-09-25 17:26:10,541  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:26:10,557  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:26:11,059  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:26:11,160  INFO ArdupilotMega._3DRradio - Doing Command AT&T (:0) [1]
+2013-09-25 17:26:11,165  INFO ArdupilotMega._3DRradio - cmd AT&T echo AT&T
+ (:0) [1]
+2013-09-25 17:26:11,666  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:26:11,979  INFO ArdupilotMega._3DRradio - Doing Command ATI (:0) [1]
+2013-09-25 17:26:11,996  INFO ArdupilotMega._3DRradio - cmd ATI echo ATI
+ (:0) [1]
+2013-09-25 17:26:12,549  INFO ArdupilotMega._3DRradio - responce 0 SiK 1.6 on HM-TRP
+
+ (:0) [1]
+2013-09-25 17:26:12,650  INFO ArdupilotMega._3DRradio - Doing Command RTI (:0) [1]
+2013-09-25 17:26:12,668  INFO ArdupilotMega._3DRradio - cmd RTI echo RTI
+ (:0) [1]
+2013-09-25 17:26:13,223  INFO ArdupilotMega._3DRradio - responce 0 SiK 1.6 on HM-TRP
+
+ (:0) [1]
+2013-09-25 17:26:13,324  INFO ArdupilotMega._3DRradio - Doing Command ATI3 (:0) [1]
+2013-09-25 17:26:13,340  INFO ArdupilotMega._3DRradio - cmd ATI3 echo ATI3
+ (:0) [1]
+2013-09-25 17:26:13,892  INFO ArdupilotMega._3DRradio - responce 0 145
+
+ (:0) [1]
+2013-09-25 17:26:13,993  INFO ArdupilotMega._3DRradio - Doing Command ATI2 (:0) [1]
+2013-09-25 17:26:14,011  INFO ArdupilotMega._3DRradio - cmd ATI2 echo ATI2
+ (:0) [1]
+2013-09-25 17:26:14,563  INFO ArdupilotMega._3DRradio - responce 0 78
+
+ (:0) [1]
+2013-09-25 17:26:14,718  INFO ArdupilotMega._3DRradio - Doing Command ATI7 (:0) [1]
+2013-09-25 17:26:14,746  INFO ArdupilotMega._3DRradio - cmd ATI7 echo ATI7
+ (:0) [1]
+2013-09-25 17:26:15,307  INFO ArdupilotMega._3DRradio - responce 0 L/R RSSI: 192/193  L/R noise: 25/36 pkts: 330  txe=0 rxe=0 stx=0 srx=0 ecc=0/0 temp=-276 dco=0
+
+ (:0) [1]
+2013-09-25 17:26:15,410  INFO ArdupilotMega._3DRradio - Doing Command ATI5 (:0) [1]
+2013-09-25 17:26:15,418  INFO ArdupilotMega._3DRradio - cmd ATI5 echo ATI5
+ (:0) [1]
+2013-09-25 17:26:16,709  INFO ArdupilotMega._3DRradio - responce 0 S0: FORMAT=25
+
+S1: SERIAL_SPEED=57
+
+S2: AIR_SPEED=64
+
+S3: NETID=25
+
+S4: TXPOWER=20
+
+S5: ECC=1
+
+S6: MAVLINK=1
+
+S7: OPPRESEND=1
+
+S8: MIN_FREQ=915000
+
+S9: MAX_FREQ=928000
+
+S10: NUM_CHANNELS=50
+
+S11: DUTY_CYCLE=100
+
+S12: LBT_RSSI=0
+
+S13: MANCHESTER=0
+
+S14: RTSCTS=0
+
+ (:0) [1]
+2013-09-25 17:26:16,816  INFO ArdupilotMega._3DRradio - Doing Command RTI5 (:0) [1]
+2013-09-25 17:26:16,825  INFO ArdupilotMega._3DRradio - cmd RTI5 echo RTI5
+ (:0) [1]
+2013-09-25 17:26:18,115  INFO ArdupilotMega._3DRradio - responce 0 S0: FORMAT=25
+
+S1: SERIAL_SPEED=57
+
+S2: AIR_SPEED=64
+
+S3: NETID=25
+
+S4: TXPOWER=20
+
+S5: ECC=1
+
+S6: MAVLINK=1
+
+S7: OPPRESEND=1
+
+S8: MIN_FREQ=915000
+
+S9: MAX_FREQ=928000
+
+S10: NUM_CHANNELS=50
+
+S11: DUTY_CYCLE=100
+
+S12: LBT_RSSI=0
+
+S13: MANCHESTER=0
+
+S14: RTSCTS=0
+
+ (:0) [1]
+2013-09-25 17:26:18,237  INFO ArdupilotMega._3DRradio - Doing Command ATO (:0) [1]
+2013-09-25 17:26:18,242  INFO ArdupilotMega._3DRradio - cmd ATO echo ATO
+ (:0) [1]
+2013-09-25 17:26:18,743  INFO ArdupilotMega._3DRradio - responce 0  (:0) [1]
+2013-09-25 17:26:18,843  INFO ArdupilotMega._3DRradio - Doing Command ATO (:0) [1]
+2013-09-25 17:26:19,845  INFO ArdupilotMega._3DRradio - cmd ATO echo  (:0) [1]
+2013-09-25 17:26:20,345  INFO ArdupilotMega._3DRradio - responce 1  (:0) [1]
+2013-09-25 17:26:32,996 DEBUG ArdupilotMega.Utilities.ThemeManager - Theme set to None (:0) [1]
