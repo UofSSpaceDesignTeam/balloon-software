@@ -28,7 +28,7 @@ public class Decoder
 		int inputIndex = 0;
 		long startTime = System.currentTimeMillis(); // reference for timeout check
 		
-		while(System.in.available() > 0 && System.currentTimeMillis() - startTime < 1000*timeout) // listen while we have data and not timed out
+		while(System.currentTimeMillis() - startTime < 1000*timeout) // listen while we have not timed out
 		{
 			if(chunkIndex > 0 && chunkCol[chunkIndex-1] == cols-1 && chunkRow[chunkIndex-1] == rows-1) // quit if we have all chunks
 				break;
