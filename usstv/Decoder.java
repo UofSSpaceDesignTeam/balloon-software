@@ -43,7 +43,12 @@ public class Decoder
 			}
 			else if(inputIndex > 0 && input[inputIndex] == (byte)0xD9 && input[inputIndex-1] == (byte)0xFF) // found the end of a jpg
 			{
-				chunks[chunkIndex] = ImageIO.read(new ByteArrayInputStream(input)); // read the jpg from the buffer
+				try
+				{
+					chunks[chunkIndex] = ImageIO.read(new ByteArrayInputStream(input)); // read the jpg from the buffer
+				}
+				catch(Exception e)
+				{}
 				if(chunks[chunkIndex] != null) // if it worked
 				{
 					chunkRow[chunkIndex] = (char)(System.in.read()*256 + System.in.read()); // read in grid position information
@@ -58,7 +63,7 @@ public class Decoder
 		
 		if(chunkIndex == 0) // timed out without finding any jpgs
 		{
-			System.out.println("timed out");
+			System.out.println("no chunks");
 			return;
 		}
 
@@ -92,7 +97,7 @@ public class Decoder
 		}
 		catch(IOException e) // report problems with i/o to stderr
 		{
-			System.out.println("Got IOException: " + e.getMessage());
+			System.err.println("Got IOException: " + e.getMessage());
 		}
 	}
 }
