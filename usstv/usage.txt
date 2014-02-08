@@ -3,4 +3,4 @@ error rate of 0.001.
 
 This should be run from the directory which contains the usstv directory.
 
-java usstv.Encoder 10 15 < in.jpg | usstv.Noise 0.001 3 | usstv.Decoder 10 15 5 > out.jpg
+java usstv.Encoder 10 15 < usstv/in.jpg | usstv.Noise 0.001 3 | usstv.Decoder 10 15 5 > usstv/out.jpg
