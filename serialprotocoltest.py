@@ -9,7 +9,7 @@ import time
 import serial
 
 # Encoding Vars
-fmt = '10sdi128sq' # data format: string, double, int, string, long-long
+fmt = '<10sdi128sq' # data format: little-endian string, double, int, string, long-long
 header='\x7c'
 footer='\x7d'
 dle='\x7b' # escape
@@ -103,3 +103,4 @@ def check(result): # computes the original hash and compares it to the received 
 	else:
 		integrity = False
 		print("CRC check failed")
+	return integrity

@@ -7,6 +7,7 @@ import math
 import time
 import serialprotocoltest
 import serial
+from datetime import date
 
 baudrate = 9600
 device = "/dev/ttyAMA0"
@@ -31,7 +32,14 @@ while True:
 	#ser.write(wrap)
 	unwrap = serialprotocoltest.clean(serialprotocoltest.sUnpack(wrap))
 	print("Unwrapped: " + str(unwrap))
-	serialprotocoltest.check(unwrap)
+	if serialprotocoltest.check(unwrap) == True:
+		d = str(date.fromtimestamp(unwrap[1]))
+		t = unwrap[3] + " degrees C"
+		print(t + " " + d)
+
+		
+	
+	#finishing the loop
 	time.sleep(.25)
 	cycle += 0.01
 	if cycle >= 2 * math.pi:
