@@ -74,7 +74,7 @@ def decode():
 	while(bufsync != sync):
 		bufsync = ser_buffer
 		readbuffer(s_recv.read(1))
-		FEC_status(11)
+		#FEC_status(11)
 	FEC_status(12)
 	
 	# Fill buffer 1
