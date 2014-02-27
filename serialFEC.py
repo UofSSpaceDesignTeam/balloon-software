@@ -132,7 +132,10 @@ def decode():
 	# Then clean the null bytes
 	data = ''.join(data)
 	packet = struct.unpack(fmt, data)
-	output = clean_nulls(packet)
+	if(packet[0] != "img\x00"):
+		output = clean_nulls(packet)
+	else:
+		output = packet
 	
 	# Run a final CRC check to make sure the FEC did not mutate data
 	if(check(output) == True):

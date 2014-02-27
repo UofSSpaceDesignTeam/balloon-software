@@ -2,8 +2,8 @@ import sys
 sys.dont_write_bytecode = True
 
 import serialFEC
-serialFEC.s_send.baudrate = 9600
-serialFEC.s_send.port = "COM7"
+serialFEC.s_send.baudrate = 1200
+serialFEC.s_send.port = "COM6"
 serialFEC.s_send.open()
 
 import random
