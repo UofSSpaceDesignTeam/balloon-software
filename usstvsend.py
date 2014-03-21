@@ -1,14 +1,14 @@
 import sys
 sys.dont_write_bytecode = True
 
-import serialFEC
-serialFEC.s_send.baudrate = 1200
-serialFEC.s_send.port = "COM6"
+import serialFEC 
+serialFEC.s_send.baudrate = 9600
+serialFEC.s_send.port = "COM7"
 serialFEC.s_send.open()
 
 import os
 
-os.system("java usstv.Encoder 10 15 < usstv/in.jpg > data.raw")
+os.system("java usstv.Encoder 5 5 0.2 < usstv/in.jpg > data.raw")
 
 def getlength(file):
 	lastpos = file.tell()
