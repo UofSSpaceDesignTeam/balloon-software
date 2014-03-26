@@ -22,6 +22,7 @@ footer = '\x7d'
 dle = '\x7b'
 sync = '\x7a'
 afterdle = lambda x: chr(ord(x) ^ ord('\x20'))
+binaryTypes=["img\x00", "bin\x00"]
 
 # Returns list of 3 similar packets with different indexes for comparing bytes
 def encode(type, data):
@@ -132,10 +133,12 @@ def decode():
 	# Then clean the null bytes
 	data = ''.join(data)
 	packet = struct.unpack(fmt, data)
-	if(packet[0] != "img\x00"):
-		output = clean_nulls(packet)
-	else:
+	
+	# For packets of binary data, do not clean the null bytes!!
+	if(packet[0] in binaryTypes):
 		output = packet
+	else:
+		output = clean_nulls(packet)
 	
 	# Run a final CRC check to make sure the FEC did not mutate data
 	if(check(output) == True):
