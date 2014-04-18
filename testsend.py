@@ -1,10 +1,10 @@
 import sys
 sys.dont_write_bytecode = True
 
-import serialFEC
-serialFEC.s_send.baudrate = 1200
-serialFEC.s_send.port = "COM6"
-serialFEC.s_send.open()
+import serialProtocol
+serialProtocol.s_send.baudrate = 1200
+serialProtocol.s_send.port = "COM3"
+serialProtocol.s_send.open()
 
 import random
 import math
@@ -15,7 +15,8 @@ cycle = 0
 while True:
 	val = int(random.randint(60, 80) * (1 + math.sin(cycle)))
 	
-	serialFEC.encode("temp", val)
+	serialProtocol.encode("temp", val)
+	print val
 	
 	#finishing the loop
 	#time.sleep(1)
