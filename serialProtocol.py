@@ -13,7 +13,7 @@ s_send = serial.Serial(bytesize=8, parity='N', stopbits=1)
 s_recv = serial.Serial(bytesize=8, parity='N', stopbits=1, timeout = 1)
 
 # Protocol Vars
-plen = 128 # Binary packet length
+plen = 8 # Binary packet length
 fmt = '<4si' + str(plen) +'sq'
 header = '\x7c'
 footer = '\x7d'
