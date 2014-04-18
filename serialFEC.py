@@ -1,6 +1,6 @@
 # Serial Protocol that implements multiple levels of error checking.
 # Uses Forward Error Correction to average 3 identical packets and CRC(Adler32) as a final check.
-# Written by Austin, so you know it's got bugs.  :)
+# Only default python libs now!
 
 
 import sys
