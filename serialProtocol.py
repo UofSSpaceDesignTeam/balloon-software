@@ -67,6 +67,7 @@ def decode():
 		packet = struct.unpack(fmt, data)
 	except:
 		Serial_status(3)
+		print "Raw packet dump: " + data 
 		return None
 	
 	# For packets of binary data, do not clean the null bytes!!
@@ -140,7 +141,7 @@ def Serial_status(type):
 	if(type == 2):
 		print("Error: Unexpected header - Read terminated")
 	if(type == 3):
-		print("Error: No good buffers")
+		print("Error: Unexpected Data Length")
 	if(type == 4):
 		print("Error: All buffers mismatch")
 	if(type == 5):
