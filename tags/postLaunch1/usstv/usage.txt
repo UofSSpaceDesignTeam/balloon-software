@@ -1,0 +1,8 @@
+Below is an example linux command to run an image transmission test,
+splitting the image into 10 rows and 15 columns, compressing each
+chunk at 60% quality, and using a transmission bit error rate of 0.1%.
+The timeout for the noise generator is 5 seconds, and the timeout for
+the decoder is 7 seconds. This should be run from the directory
+containing the usstv directory.
+
+java usstv.Encoder 10 15 0.6 < usstv/in.jpg | java usstv.Noise 0.001 5 | java usstv.Decoder 10 15 7 > usstv/out.jpg
