@@ -5,7 +5,6 @@
 import sys
 sys.dont_write_bytecode = True
 
-from zlib import adler32
 import struct
 import serial
 
@@ -14,7 +13,7 @@ s_recv = serial.Serial(bytesize=8, parity='N', stopbits=1, timeout = 1)
 
 # Protocol Vars
 plen = 8 # Binary packet length
-fmt = '<4si' + str(plen) +'sq'
+fmt = '<4s'+ str(plen) + 'si'
 header = '\x7c'
 footer = '\x7d'
 dle = '\x7b' # escape 
@@ -32,9 +31,9 @@ def encode(type, data):
 	if(dlength > 128):
 		return Serial_status(1)
 	
-	raw = struct.pack(fmt, type, dlength, data, crc)
-	crc = adler32(str(raw)) & 0xffffffff # AND to fix issues between Linux and NT
-	body = struct.pack(fmt, type, dlength, data, crc)
+	raw = struct.pack(fmt, type, data, crc)
+	crc = crc8(str(raw), 18)
+	body = struct.pack(fmt, type, data, crc)
 	
 	packet = header
 	
@@ -110,9 +109,30 @@ def readbuffer(new_char):
 		read = False
 		state = 1
 		
+def crc8(data, len):
+	data = data + "\x00"
+	crc = 0x00
+	for x in range(0,len):
+		try:
+			inbyte = ord(data[x])
+		except:
+			inbyte = 0x00
+			
+		#print inbyte
+		for x in range (0,8):
+			mix = (crc ^ inbyte) & 0x01
+			#print mix
+			crc >>= 1;
+			if (mix): crc ^= 0x8c
+			#print crc
+			inbyte >>= 1
+			#print inbyte
+				
+	return crc & 0xffffffff
+		
 # Remove the null bytes that were used as padding
 def clean_nulls(orig_packet):
-	clean_packet = [0,0,0,0]
+	clean_packet = [0,0,0]
 	for n in range(len(orig_packet)):
 		try:
 			clean_packet[n] = orig_packet[n].split('\x00')[0]
@@ -124,9 +144,9 @@ def clean_nulls(orig_packet):
 # CRC check, reverse of packing method	
 def check(packet):
 	raw = packet[:-1] + (0,) 
-	raw = struct.pack(fmt, raw[0], raw[1], raw[2], raw [3])
-	crc=adler32(raw) & 0xffffffff
-	if packet[3] == crc:
+	raw = struct.pack(fmt, raw[0], raw[1], raw[2])
+	crc=crc8(raw, 18)
+	if packet[2] == crc:
 		integrity = True
 	else:
 		integrity = False

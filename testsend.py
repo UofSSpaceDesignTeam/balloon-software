@@ -3,7 +3,7 @@ sys.dont_write_bytecode = True
 
 import serialProtocol
 serialProtocol.s_send.baudrate = 1200
-serialProtocol.s_send.port = "COM3"
+serialProtocol.s_send.port = "COM7"
 serialProtocol.s_send.open()
 
 import random
