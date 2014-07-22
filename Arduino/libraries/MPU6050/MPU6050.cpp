@@ -62,7 +62,7 @@ MPU6050::MPU6050(uint8_t address) {
  */
 void MPU6050::initialize() {
     setClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    setFullScaleGyroRange(MPU6050_GYRO_FS_500);
+    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 }
@@ -123,7 +123,14 @@ void MPU6050::setAuxVDDIOLevel(uint8_t level) {
 uint8_t MPU6050::getRate() {
     I2Cdev::readByte(devAddr, MPU6050_RA_SMPLRT_DIV, buffer);
     return buffer[0];
+} 
+
+uint8_t MPU6050::checkMagStatus() {
+    I2Cdev::readByte(MPU9150_RA_MAG_ADDRESS, 0x02, buffer);
+    return buffer[0];
 }
+
+
 /** Set gyroscope sample rate divider.
  * @param rate New sample rate divider
  * @see getRate()
@@ -1716,8 +1723,32 @@ bool MPU6050::getIntDataReadyStatus() {
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
 void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
-    getMotion6(ax, ay, az, gx, gy, gz);
-    // TODO: magnetometer integration
+    
+	//get accel and gyro
+	getMotion6(ax, ay, az, gx, gy, gz);
+	
+	//read mag
+	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
+	delay(10);
+	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
+	delay(10);
+	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
+	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
+        *my = (((int16_t)buffer[3]) << 8) | buffer[2];
+        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];		
+}
+
+void MPU6050::getMag(int16_t* mx, int16_t* my, int16_t* mz) {
+    
+	//read mag
+	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
+	delay(10);
+	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
+	delay(10);
+	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
+	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
+        *my = (((int16_t)buffer[3]) << 8) | buffer[2];
+        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];		
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
@@ -2722,31 +2753,31 @@ uint8_t MPU6050::getOTPBankValid() {
 void MPU6050::setOTPBankValid(bool enabled) {
     I2Cdev::writeBit(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OTP_BNK_VLD_BIT, enabled);
 }
-int8_t MPU6050::getXGyroOffsetTC() {
+int8_t MPU6050::getXGyroOffset() {
     I2Cdev::readBits(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setXGyroOffsetTC(int8_t offset) {
+void MPU6050::setXGyroOffset(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_XG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // YG_OFFS_TC register
 
-int8_t MPU6050::getYGyroOffsetTC() {
+int8_t MPU6050::getYGyroOffset() {
     I2Cdev::readBits(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setYGyroOffsetTC(int8_t offset) {
+void MPU6050::setYGyroOffset(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_YG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
 // ZG_OFFS_TC register
 
-int8_t MPU6050::getZGyroOffsetTC() {
+int8_t MPU6050::getZGyroOffset() {
     I2Cdev::readBits(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, buffer);
     return buffer[0];
 }
-void MPU6050::setZGyroOffsetTC(int8_t offset) {
+void MPU6050::setZGyroOffset(int8_t offset) {
     I2Cdev::writeBits(devAddr, MPU6050_RA_ZG_OFFS_TC, MPU6050_TC_OFFSET_BIT, MPU6050_TC_OFFSET_LENGTH, offset);
 }
 
@@ -2812,31 +2843,31 @@ void MPU6050::setZAccelOffset(int16_t offset) {
 
 // XG_OFFS_USR* registers
 
-int16_t MPU6050::getXGyroOffset() {
+int16_t MPU6050::getXGyroOffsetUser() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_XG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setXGyroOffset(int16_t offset) {
+void MPU6050::setXGyroOffsetUser(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_XG_OFFS_USRH, offset);
 }
 
 // YG_OFFS_USR* register
 
-int16_t MPU6050::getYGyroOffset() {
+int16_t MPU6050::getYGyroOffsetUser() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_YG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setYGyroOffset(int16_t offset) {
+void MPU6050::setYGyroOffsetUser(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_YG_OFFS_USRH, offset);
 }
 
 // ZG_OFFS_USR* register
 
-int16_t MPU6050::getZGyroOffset() {
+int16_t MPU6050::getZGyroOffsetUser() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_ZG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
-void MPU6050::setZGyroOffset(int16_t offset) {
+void MPU6050::setZGyroOffsetUser(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_ZG_OFFS_USRH, offset);
 }
 
@@ -2963,7 +2994,7 @@ void MPU6050::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, ui
         }
     }
 }
-bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify) {
+bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem) {
     setMemoryBank(bank);
     setMemoryStartAddress(address);
     uint8_t chunkSize;
@@ -2972,6 +3003,7 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
     uint16_t i;
     uint8_t j;
     if (verify) verifyBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
+    if (useProgMem) progBuffer = (uint8_t *)malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
     for (i = 0; i < dataSize;) {
         // determine correct chunk size according to bank position and data size
         chunkSize = MPU6050_DMP_MEMORY_CHUNK_SIZE;
@@ -2982,10 +3014,13 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
         // make sure this chunk doesn't go past the bank boundary (256 bytes)
         if (chunkSize > 256 - address) chunkSize = 256 - address;
         
-
+        if (useProgMem) {
+            // write the chunk of data as specified
+            for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
+        } else {
             // write the chunk of data as specified
             progBuffer = (uint8_t *)data + i;
-
+        }
 
         I2Cdev::writeBytes(devAddr, MPU6050_RA_MEM_R_W, chunkSize, progBuffer);
 
@@ -3013,6 +3048,7 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
                 }
                 Serial.print("\n");*/
                 free(verifyBuffer);
+                if (useProgMem) free(progBuffer);
                 return false; // uh oh.
             }
         }
@@ -3031,24 +3067,32 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
         }
     }
     if (verify) free(verifyBuffer);
+    if (useProgMem) free(progBuffer);
     return true;
 }
 bool MPU6050::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify) {
-    return writeMemoryBlock(data, dataSize, bank, address, verify);
+    return writeMemoryBlock(data, dataSize, bank, address, verify, true);
 }
-bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
+bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem) {
     uint8_t *progBuffer, success, special;
     uint16_t i, j;
+    if (useProgMem) {
+        progBuffer = (uint8_t *)malloc(8); // assume 8-byte blocks, realloc later if necessary
+    }
 
     // config set data is a long string of blocks with the following structure:
     // [bank] [offset] [length] [byte[0], byte[1], ..., byte[length]]
     uint8_t bank, offset, length;
     for (i = 0; i < dataSize;) {
-
+        if (useProgMem) {
+            bank = pgm_read_byte(data + i++);
+            offset = pgm_read_byte(data + i++);
+            length = pgm_read_byte(data + i++);
+        } else {
             bank = data[i++];
             offset = data[i++];
             length = data[i++];
- 
+        }
 
         // write data or perform special action
         if (length > 0) {
@@ -3059,9 +3103,12 @@ bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
             Serial.print(offset);
             Serial.print(", length=");
             Serial.println(length);*/
-
+            if (useProgMem) {
+                if (sizeof(progBuffer) < length) progBuffer = (uint8_t *)realloc(progBuffer, length);
+                for (j = 0; j < length; j++) progBuffer[j] = pgm_read_byte(data + i + j);
+            } else {
                 progBuffer = (uint8_t *)data + i;
-           
+            }
             success = writeMemoryBlock(progBuffer, length, bank, offset, true);
             i += length;
         } else {
@@ -3070,11 +3117,11 @@ bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
             // is totally undocumented. This code is in here based on observed
             // behavior only, and exactly why (or even whether) it has to be here
             // is anybody's guess for now.
-
-
-
+            if (useProgMem) {
+                special = pgm_read_byte(data + i++);
+            } else {
                 special = data[i++];
-            
+            }
             /*Serial.print("Special command code ");
             Serial.print(special, HEX);
             Serial.println(" found...");*/
@@ -3094,15 +3141,15 @@ bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
         }
         
         if (!success) {
-
+            if (useProgMem) free(progBuffer);
             return false; // uh oh
         }
     }
-
+    if (useProgMem) free(progBuffer);
     return true;
 }
 bool MPU6050::writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
-    return writeDMPConfigurationSet(data, dataSize);
+    return writeDMPConfigurationSet(data, dataSize, true);
 }
 
 // DMP_CFG_1 register
