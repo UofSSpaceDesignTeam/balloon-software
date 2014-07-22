@@ -38,8 +38,16 @@ THE SOFTWARE.
 #define _MPU6050_H_
 
 #include "I2Cdev.h"
+#include <avr/pgmspace.h>
 
-
+//Magnetometer Registers
+#define MPU9150_RA_MAG_ADDRESS		0x0C
+#define MPU9150_RA_MAG_XOUT_L		0x03
+#define MPU9150_RA_MAG_XOUT_H		0x04
+#define MPU9150_RA_MAG_YOUT_L		0x05
+#define MPU9150_RA_MAG_YOUT_H		0x06
+#define MPU9150_RA_MAG_ZOUT_L		0x07
+#define MPU9150_RA_MAG_ZOUT_H		0x08
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
@@ -412,7 +420,9 @@ class MPU6050 {
         // SMPLRT_DIV register
         uint8_t getRate();
         void setRate(uint8_t rate);
-
+        
+        uint8_t  checkMagStatus();
+     
         // CONFIG register
         uint8_t getExternalFrameSync();
         void setExternalFrameSync(uint8_t sync);
@@ -591,6 +601,9 @@ class MPU6050 {
         int16_t getRotationY();
         int16_t getRotationZ();
 
+        // MAG_*OUT_* registers
+        void getMag(int16_t* x, int16_t* y, int16_t* z);
+
         // EXT_SENS_DATA_* registers
         uint8_t getExternalSensorByte(int position);
         uint16_t getExternalSensorWord(int position);
@@ -681,16 +694,16 @@ class MPU6050 {
         // XG_OFFS_TC register
         uint8_t getOTPBankValid();
         void setOTPBankValid(bool enabled);
-        int8_t getXGyroOffsetTC();
-        void setXGyroOffsetTC(int8_t offset);
+        int8_t getXGyroOffset();
+        void setXGyroOffset(int8_t offset);
 
         // YG_OFFS_TC register
-        int8_t getYGyroOffsetTC();
-        void setYGyroOffsetTC(int8_t offset);
+        int8_t getYGyroOffset();
+        void setYGyroOffset(int8_t offset);
 
         // ZG_OFFS_TC register
-        int8_t getZGyroOffsetTC();
-        void setZGyroOffsetTC(int8_t offset);
+        int8_t getZGyroOffset();
+        void setZGyroOffset(int8_t offset);
 
         // X_FINE_GAIN register
         int8_t getXFineGain();
@@ -717,16 +730,16 @@ class MPU6050 {
         void setZAccelOffset(int16_t offset);
 
         // XG_OFFS_USR* registers
-        int16_t getXGyroOffset();
-        void setXGyroOffset(int16_t offset);
+        int16_t getXGyroOffsetUser();
+        void setXGyroOffsetUser(int16_t offset);
 
         // YG_OFFS_USR* register
-        int16_t getYGyroOffset();
-        void setYGyroOffset(int16_t offset);
+        int16_t getYGyroOffsetUser();
+        void setYGyroOffsetUser(int16_t offset);
 
         // ZG_OFFS_USR* register
-        int16_t getZGyroOffset();
-        void setZGyroOffset(int16_t offset);
+        int16_t getZGyroOffsetUser();
+        void setZGyroOffsetUser(int16_t offset);
         
         // INT_ENABLE register (DMP functions)
         bool getIntPLLReadyEnabled();
@@ -761,10 +774,10 @@ class MPU6050 {
         uint8_t readMemoryByte();
         void writeMemoryByte(uint8_t data);
         void readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0);
-        bool writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true);
+        bool writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true, bool useProgMem=false);
         bool writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank=0, uint8_t address=0, bool verify=true);
 
-        bool writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
+        bool writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem=false);
         bool writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
 
         // DMP_CFG_1 register
@@ -823,7 +836,8 @@ class MPU6050 {
             uint8_t dmpGetRelativeQuaternion(Quaternion *data, const uint8_t* packet=0);
             uint8_t dmpGetGyro(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetGyro(int16_t *data, const uint8_t* packet=0);
-            uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);
+            uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);                  	
+            uint8_t dmpGetMag (VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
             uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
@@ -926,7 +940,8 @@ class MPU6050 {
             uint8_t dmpGetGyro(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetMag(int16_t *data, const uint8_t* packet=0);
-            uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
+            uint8_t dmpGetMag(VectorInt16 *v, const uint8_t* packet=0);
+	    uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
             uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(VectorInt16 *v, const uint8_t* packet=0);
@@ -984,3 +999,4 @@ class MPU6050 {
 };
 
 #endif /* _MPU6050_H_ */
+
