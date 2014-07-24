@@ -10,7 +10,7 @@
 #include <HTU21D.h>
 
 // create all the objects we will need
-SoftwareSerial ss(5,9);  // pin 8 = input from gps
+SoftwareSerial ss(8,9);  // 8: gps in, 9: data logger
 MPU6050 gyro(0x68);
 TinyGPS gps;
 Adafruit_BMP085 bmp;  // pressure sensor
@@ -30,8 +30,8 @@ void setup()  // runs once at power up
   //digitalWrite(7,HIGH);
   delay(100);  // wait for devices to power up
   Wire.begin();  // fire up the I2C interface
-  Serial.begin(4800);  // main serial port for debug/radio interface
-  ss.begin(4800);  // serial interface for the gps
+  Serial.begin(1200);  // main serial port for debug/radio interface
+  ss.begin(4800);  // serial interface for the gps and datalogger
   delay(100);
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
