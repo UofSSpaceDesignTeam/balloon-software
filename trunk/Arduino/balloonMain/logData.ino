@@ -58,6 +58,6 @@ void logData()
     ss.print(',');
     ss.print(ExternalTemp);
     ss.print(',');
-    ss.println(bmp.readTemperature);  //Internal Temperature
+    ss.println(bmp.readTemperature());  //Internal Temperature
 
 }
