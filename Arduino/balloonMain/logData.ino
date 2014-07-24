@@ -1,4 +1,4 @@
-// data format is: "timestamp(millis),timestamp(gps),lat,lon,gpsAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp,bmpAlt"
+// data format is: timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp
 // two timestamps, one in milliseconds since power up, second from gps
 // gps time in hhmmsscc UTC
 // lat, lon in millionths of a degree
@@ -20,11 +20,15 @@ void logData()
     Serial.print(',');
     Serial.print(time);
     Serial.print(',');
+    Serial.print(date);
+    Serial.print(',');
     Serial.print(lat);
     Serial.print(',');
-    Serial.print(-1*lon);
+    Serial.print(-1*lon);  //-1*lon b/c we know we're in the western hemisphere
     Serial.print(',');
-    Serial.print(alt);
+    Serial.print(gpsAlt);
+    Serial.print(',');
+    Serial.print(bmp.readAltitude());
     Serial.print(',');
     Serial.print(fixage);
     Serial.print(',');
@@ -55,6 +59,5 @@ void logData()
     Serial.print(ExternalTemp);
     Serial.print(',');
     Serial.print(bmp.readTemperature)  //Internal Temperature
-    Serial.print(',');
-    Serial.print(bmp.readAltitude());
+
 }
