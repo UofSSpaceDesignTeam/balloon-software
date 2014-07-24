@@ -59,5 +59,20 @@ void logData()
     ss.print(ExternalTemp);
     ss.print(',');
     ss.println(bmp.readTemperature());  //Internal Temperature
+    
+    //Send data over radio
+    //Perhaps this should be on a timer interrupt?
+    
+    Serial.print("G");
+    Serial.print(lat/100);
+    Serial.print(",");
+    Serial.print(lon/-100);
+    Serial.print(",");
+    Serial.println(gpsAlt);
+    
+    Serial.print("T");
+    Serial.print(ExternalTemp);
+    Serial.print(",");
+    Serial.println(bmp.readTemperature());
 
 }
