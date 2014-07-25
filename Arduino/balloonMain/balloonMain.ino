@@ -19,19 +19,21 @@ HTU21D myHumidity;
 
 // create global variables for use later
 long lat, lon, alt;  // gps position
-unsigned long fixAge, speed, course, lastLog, date, time,gpsAlt,ExternalTemp,InternalTemp,humd;  // gps and timing data
+unsigned long fixAge, speed, course, lastLog, lastTransmit, date, time,gpsAlt,ExternalTemp,InternalTemp,humd;  // gps and timing data
 int16_t ax, ay, az,gx,gy,gz,mx,my,mz;  // gyro data
 
 void setup()  // runs once at power up
 {
-  //pinMode(6,OUTPUT);  // powers mic amp
-  //pinMode(7,OUTPUT);  // powers gyro and pressure sensor
-  //digitalWrite(6,HIGH);
-  //digitalWrite(7,HIGH);
+  pinMode(4, OUTPUT); //set up keycamera
   delay(100);  // wait for devices to power up
+  digitalWrite(4, 0); //begin camera
+  delay(100);
+  digitalWrite(4, 1);
+  delay(2000);
+  digitalWrite(4, 0);
   Wire.begin();  // fire up the I2C interface
   Serial.begin(1200);  // main serial port for debug/radio interface
-  ss.begin(4800);  // serial interface for the gps and datalogger
+  ss.begin(9600);  // serial interface for the gps and datalogger
   delay(100);
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
@@ -40,6 +42,7 @@ void setup()  // runs once at power up
     ss.println("BMP fail!");
   ss.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp");
   lastLog = 0;
+  lastTransmit = 0;
   fixAge = 0;
   speed = 0;
   course = 0;
@@ -63,10 +66,14 @@ void loop()
     }
   }
   
-  if(millis() - lastLog > 10000)  // log data every (10 + runtime) sec
+  if(millis() - lastLog > 8000)  // log data every (8 + 2 (camera)) sec
   {
     lastLog = millis();
     logData();
   }
-
+  if(millis() - lastTransmit > 500) // transmit data every .5 second
+  {
+    lastTransmit = millis();
+    transmitData();
+  }
 }
