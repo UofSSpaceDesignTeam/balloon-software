@@ -22,7 +22,7 @@ class PlotDataWindow(QMainWindow):
 		self.yplot2 = [int(0)]
 		self.gpsAlt = "0"
 		
-		self.recvSerial = serial.Serial("COM7", 1200, timeout=0.5)
+		self.recvSerial = serial.Serial("COM3", 1200, timeout=0.5)
 		self.sendSerial = serial.Serial("COM8", 9600, timeout=0.5)
 		print "Serial Started"
 		
@@ -123,7 +123,7 @@ class PlotDataWindow(QMainWindow):
 				
 				self.status_text.setText("Current Altitude: " + self.gpsAlt + "m")
 				
-				self.yplot2.append(int(self.gpsAlt))
+				self.yplot2.append(int(float(self.gpsAlt)))
 				
 				
 			if recv[0] == "T":
@@ -139,7 +139,7 @@ class PlotDataWindow(QMainWindow):
 			self.xplot.append(int(x))
 				
 		except:
-			print("No Serial Data Received")
+			raise
 			
 	def create_status_bar(self, alt):
 		self.status_text = QLabel(alt)
