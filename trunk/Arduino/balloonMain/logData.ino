@@ -60,19 +60,24 @@ void logData()
     ss.print(',');
     ss.println(bmp.readTemperature());  //Internal Temperature
     
+     //take a picture with the keycamera
+    //digitalWrite(4, 1);
+    //delay(2000);
+    //digitalWrite(4, 0);
+
+}
     //Send data over radio
-    //Perhaps this should be on a timer interrupt?
-    
+ void transmitData()
+{ 
     Serial.print("G");
     Serial.print(lat/100);
     Serial.print(",");
     Serial.print(lon/-100);
     Serial.print(",");
-    Serial.println(gpsAlt);
+    Serial.println(gpsAlt/10);
     
     Serial.print("T");
     Serial.print(ExternalTemp);
     Serial.print(",");
     Serial.println(bmp.readTemperature());
-
 }
