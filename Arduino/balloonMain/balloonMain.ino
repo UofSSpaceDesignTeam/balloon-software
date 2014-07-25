@@ -19,7 +19,7 @@ HTU21D myHumidity;
 
 // create global variables for use later
 long lat, lon, alt;  // gps position
-unsigned long fixAge, speed, course, lastLog, lastTransmit, date, time,gpsAlt,ExternalTemp,InternalTemp,humd;  // gps and timing data
+unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, time,gpsAlt,ExternalTemp,InternalTemp,humd;  // gps and timing data
 int16_t ax, ay, az,gx,gy,gz,mx,my,mz;  // gyro data
 
 void setup()  // runs once at power up
@@ -43,6 +43,7 @@ void setup()  // runs once at power up
   ss.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp");
   lastLog = 0;
   lastTransmit = 0;
+  lastPicture = 0;
   fixAge = 0;
   speed = 0;
   course = 0;
@@ -66,7 +67,7 @@ void loop()
     }
   }
   
-  if(millis() - lastLog > 8000)  // log data every (8 + 2 (camera)) sec
+  if(millis() - lastLog > 10000)  // log data every (10 + runtime) sec
   {
     lastLog = millis();
     logData();
@@ -75,5 +76,10 @@ void loop()
   {
     lastTransmit = millis();
     transmitData();
+  }
+  if(millis() - lastPicture > 300000) // take picture every 5 minutes
+  {
+    lastPicture = millis();
+    takePicture();
   }
 }

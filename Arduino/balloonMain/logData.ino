@@ -59,11 +59,6 @@ void logData()
     ss.print(ExternalTemp);
     ss.print(',');
     ss.println(bmp.readTemperature());  //Internal Temperature
-    
-     //take a picture with the keycamera
-    //digitalWrite(4, 1);
-    //delay(2000);
-    //digitalWrite(4, 0);
 
 }
     //Send data over radio
@@ -74,10 +69,20 @@ void logData()
     Serial.print(",");
     Serial.print(lon/-100);
     Serial.print(",");
-    Serial.println(gpsAlt/10);
+    Serial.println(gpsAlt);
     
     Serial.print("T");
     Serial.print(ExternalTemp);
     Serial.print(",");
     Serial.println(bmp.readTemperature());
 }
+
+void takePicture()
+{
+   //take a picture with the keycamera
+   digitalWrite(4, 0);
+   digitalWrite(4, 1);
+   delay(2000);
+   digitalWrite(4, 0);
+}
+  
