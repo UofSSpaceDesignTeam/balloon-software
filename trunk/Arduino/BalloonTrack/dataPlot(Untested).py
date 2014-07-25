@@ -19,27 +19,28 @@ class PlotDataWindow(QMainWindow):
 		self.counter = 1
 		self.xplot = [int(0)]
 		self.yplot = [int(0)]
+		self.yplot2 = [int(0)]
 		self.gpsAlt = "0"
 		
-		self.recvSerial = serial.Serial("COM7", 1200, timeout=1)
-		self.sendSerial = serial.Serial("COM8", 9600, timeout=1)
+		self.recvSerial = serial.Serial("COM7", 1200, timeout=0.5)
+		self.sendSerial = serial.Serial("COM8", 9600, timeout=0.5)
 		print "Serial Started"
 		
 		self.create_status_bar(self.gpsAlt)
 
-	def make_data_box(self, name):
-		label = QLabel(name)
-		qle = QLineEdit()
-		qle.setEnabled(False)
-		qle.setFrame(False)
-		return (label, qle)
+	#def make_data_box(self, name):
+	#	label = QLabel(name)
+	#	qle = QLineEdit()
+	#	qle.setEnabled(False)
+	#	qle.setFrame(False)
+	#	return (label, qle)
 		
 	def create_plot(self):
 		plot = Qwt.QwtPlot(self)
 		plot.setCanvasBackground(Qt.black)
 		plot.setAxisTitle(Qwt.QwtPlot.xBottom, 'Time')
 		plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, 10, 1)
-		plot.setAxisTitle(Qwt.QwtPlot.yLeft, 'Temperature')
+		plot.setAxisTitle(Qwt.QwtPlot.yLeft, 'Temperature (degC)')
 		plot.setAxisScale(Qwt.QwtPlot.yLeft, -60, 60, 10)
 		plot.replot()
 
@@ -51,20 +52,39 @@ class PlotDataWindow(QMainWindow):
 		curve.attach(plot)
 		return plot, curve
 		
+	def create_plot2(self):
+		plot2 = Qwt.QwtPlot(self)
+		plot2.setCanvasBackground(Qt.black)
+		plot2.setAxisTitle(Qwt.QwtPlot.xBottom, 'Time')
+		plot2.setAxisScale(Qwt.QwtPlot.xBottom, 0, 10, 1)
+		plot2.setAxisTitle(Qwt.QwtPlot.yLeft, 'Altitude (m)')
+		plot2.setAxisScale(Qwt.QwtPlot.yLeft, 400, 3500, 250)
+		plot2.replot()
+
+		curve2 = Qwt.QwtPlotCurve('')
+		curve2.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
+		pen2 = QPen(QColor('limegreen'))
+		pen2.setWidth(2)
+		curve2.setPen(pen2)
+		curve2.attach(plot2)
+		return plot2, curve2
+		
 	def create_main_frame(self):
 		self.plot, self.curve = self.create_plot()
+		self.plot2, self.curve2 = self.create_plot2()
 
 		plot_layout = QVBoxLayout()
 		plot_layout.addWidget(self.plot)
+		plot_layout.addWidget(self.plot2)
 
-		plot_groupbox = QGroupBox('Temperature')
+		plot_groupbox = QGroupBox('Balloon Data Link')
 		plot_groupbox.setLayout(plot_layout)
 
 		# Main frame and layout
 		self.main_frame = QWidget()
 		main_layout = QVBoxLayout()
 		main_layout.addWidget(plot_groupbox)
-		main_layout.addStretch(1)
+		main_layout.addStretch(2)
 		self.main_frame.setLayout(main_layout)
 
 		self.setCentralWidget(self.main_frame)
@@ -103,22 +123,23 @@ class PlotDataWindow(QMainWindow):
 				
 				self.status_text.setText("Current Altitude: " + self.gpsAlt + "m")
 				
+				self.yplot2.append(int(self.gpsAlt))
+				
+				
 			if recv[0] == "T":
 				recv = recv[1:]
 				y = recv.partition(',')[0]
-				print y
+				#y2 = recv.partition(',')[2]
 				
-				x = self.counter
-				self.counter += 1
-				
-				try:
-					self.yplot.append(int(y))
-					self.xplot.append(int(x))
-				except:
-					raise
+				self.yplot.append(int(y))
+				#self.yplot2.append(int(y2))
+			
+			x = self.counter
+			self.counter += 1
+			self.xplot.append(int(x))
 				
 		except:
-			pass
+			print("No Serial Data Received")
 			
 	def create_status_bar(self, alt):
 		self.status_text = QLabel(alt)
@@ -126,8 +147,11 @@ class PlotDataWindow(QMainWindow):
 		
 	def UiUpdate(self):
 		self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xplot[0], max(20, self.xplot[-1]))
+		self.plot2.setAxisScale(Qwt.QwtPlot.xBottom, self.xplot[0], max(20, self.xplot[-1]))
 		self.curve.setData(self.xplot,self.yplot)
+		self.curve2.setData(self.xplot,self.yplot2)
 		self.plot.replot()
+		self.plot2.replot()
 
 	
 def main():
