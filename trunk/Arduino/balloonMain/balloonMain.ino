@@ -12,7 +12,7 @@
 // create all the objects we will need
 SoftwareSerial ssLogger(10,9);  // 9: datalogger out, 10: unused
 SoftwareSerial ssGPS(8,11);   // 8: gps in, 11: unused
-MPU6050 gyro(0x68);
+MPU6050 gyro;
 TinyGPS gps;
 Adafruit_BMP085 bmp;  // pressure sensor
 HTU21D myHumidity;
@@ -33,16 +33,16 @@ void setup()  // runs once at power up
   delay(2000);
   digitalWrite(4, 0);
   Wire.begin();  // fire up the I2C interface
-  Serial.begin(1200);  // main serial port for debug/radio interface
+  Serial.begin(9600);  // main serial port for debug/radio interface
   ssGPS.begin(9600);  // serial interface for the gps
   ssLogger.begin(4800);  //serial interface for the DataLogger
-  delay(100);
+  while(!Serial);
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
     ssLogger.println("Gyro fail!");
   if(!bmp.begin())
     ssLogger.println("BMP fail!");
-  ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp");
+  ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp,SolarCell Raw,UV Sensor Raw");
   lastLog = 0;
   lastTransmit = 0;
   lastPicture = 0;
@@ -77,11 +77,11 @@ void loop()
   if(millis() - lastTransmit > 500) // transmit data every .5 second
   {
     lastTransmit = millis();
-    transmitData();
+    //transmitData();
   }
   if(millis() - lastPicture > 300000) // take picture every 5 minutes
   {
     lastPicture = millis();
-    takePicture();
+    //takePicture();
   }
 }

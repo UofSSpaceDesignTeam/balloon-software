@@ -58,8 +58,11 @@ void logData()
     ssLogger.print(',');
     ssLogger.print(ExternalTemp);
     ssLogger.print(',');
-    ssLogger.println(bmp.readTemperature());  //Internal Temperature
-
+    ssLogger.print(bmp.readTemperature());  //Internal Temperature
+    ssLogger.print(',');
+    ssLogger.print(analogRead(0));  //solar cell
+    ssLogger.print(',');
+    ssLogger.println(analogRead(1));  //uv sensor
 }
     //Send data over radio
  void transmitData()
