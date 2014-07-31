@@ -10,7 +10,8 @@
 #include <HTU21D.h>
 
 // create all the objects we will need
-SoftwareSerial ss(8,9);  // 8: gps in, 9: data logger
+SoftwareSerial ssLogger(10,9);  // 9: datalogger out, 10: unused
+SoftwareSerial ssGPS(8,11);   // 8: gps in, 11: unused
 MPU6050 gyro(0x68);
 TinyGPS gps;
 Adafruit_BMP085 bmp;  // pressure sensor
@@ -33,14 +34,15 @@ void setup()  // runs once at power up
   digitalWrite(4, 0);
   Wire.begin();  // fire up the I2C interface
   Serial.begin(1200);  // main serial port for debug/radio interface
-  ss.begin(9600);  // serial interface for the gps and datalogger
+  ssGPS.begin(9600);  // serial interface for the gps
+  ssLogger.begin(4800);  //serial interface for the DataLogger
   delay(100);
   gyro.initialize();  // set up IMU
   if(!gyro.testConnection())
-    ss.println("Gyro fail!");
+    ssLogger.println("Gyro fail!");
   if(!bmp.begin())
-    ss.println("BMP fail!");
-  ss.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp");
+    ssLogger.println("BMP fail!");
+  ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp");
   lastLog = 0;
   lastTransmit = 0;
   lastPicture = 0;
@@ -55,9 +57,9 @@ void setup()  // runs once at power up
 
 void loop()
 {
-  while(ss.available())  // update the gps
+  while(ssGPS.available())  // update the gps
   {
-    if(gps.encode(ss.read()));
+    if(gps.encode(ssGPS.read()));
     {
       gps.get_position(&lat,&lon,&fixAge);
       gps.get_datetime(&date,&time);
