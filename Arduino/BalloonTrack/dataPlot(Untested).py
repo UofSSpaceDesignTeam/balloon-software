@@ -94,6 +94,8 @@ class PlotDataWindow(QMainWindow):
 			recv = self.recvSerial.readline()
 			if recv[0] == "G":
 				template = "$GPGGA,123519,4807.038,N,01131.000,W,1,08,0.9,545.4,M,46.9,M,,*47"
+				templateB = "$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39"
+				
 				utcTime = time.strftime("%H%M%S", time.gmtime())
 				gpsLonDeg = (int(recv[1:6]))/1000
 				gpsLonMin = (float(int(recv[1:6]))/1000 - gpsLonDeg) * 60
@@ -120,6 +122,8 @@ class PlotDataWindow(QMainWindow):
 				
 				#print sentence
 				self.sendSerial.write(sentence)
+				self.sendSerial.write(templateB)
+				
 				
 				self.status_text.setText("Current Altitude: " + self.gpsAlt + "m")
 				
@@ -138,6 +142,9 @@ class PlotDataWindow(QMainWindow):
 			self.counter += 1
 			self.xplot.append(int(x))
 				
+		except IndexError:
+			print "Incomplete or No Data!"
+		
 		except:
 			raise
 			
