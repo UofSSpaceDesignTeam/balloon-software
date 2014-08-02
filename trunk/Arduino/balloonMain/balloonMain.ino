@@ -33,7 +33,7 @@ void setup()	// runs once at power up
 	delay(2000);
 	digitalWrite(4, 0);
 	Wire.begin();	// fire up the I2C interface
-	Serial.begin(9600);	// main serial port for debug/radio interface
+	Serial.begin(1200);	// main serial port for debug/radio interface
 	ssGPS.begin(9600);	// serial interface for the gps
 	ssLogger.begin(4800);	//serial interface for the DataLogger
 	gyro.initialize();	// set up IMU
