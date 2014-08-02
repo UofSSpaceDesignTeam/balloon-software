@@ -23,6 +23,9 @@ unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, t
 unsigned long gpsAlt, ExternalTemp, InternalTemp, humd;	// gps and timing data
 int ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
 
+unsigned long chars;
+unsigned short sentences, failed;
+
 void setup()	// runs once at power up
 {
 	pinMode(4, OUTPUT); //set up keycamera
@@ -33,7 +36,7 @@ void setup()	// runs once at power up
 	delay(2000);
 	digitalWrite(4, 0);
 	Wire.begin();	// fire up the I2C interface
-	Serial.begin(1200);	// main serial port for debug/radio interface
+	Serial.begin(4800);	// main serial port for debug/radio interface
 	ssGPS.begin(9600);	// serial interface for the gps
 	ssLogger.begin(4800);	//serial interface for the DataLogger
 	gyro.initialize();	// set up IMU
@@ -52,6 +55,7 @@ void setup()	// runs once at power up
 	lon = 0; 
 	gpsAlt = 0;
 	time = 0;
+        ssGPS.listen();
 }
 
 void loop()
@@ -72,11 +76,13 @@ void loop()
 	{
 		lastLog = millis();
 		logData();
+                ssGPS.listen();
 	}
 	
-	if(millis() - lastTransmit > 500) // transmit data every .5 second
+	if(millis() - lastTransmit > 5000) // transmit data every 1 sec
 	{
 		lastTransmit = millis();
 		transmitData();
+                ssGPS.listen();
 	}
 }
