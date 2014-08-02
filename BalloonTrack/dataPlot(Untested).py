@@ -22,8 +22,8 @@ class PlotDataWindow(QMainWindow):
 		self.yplot2 = [int(0)]
 		self.gpsAlt = "0"
 		
-		self.recvSerial = serial.Serial("COM3", 1200, timeout=0.5)
-		self.sendSerial = serial.Serial("COM8", 9600, timeout=0.5)
+		self.recvSerial = serial.Serial("COM6", 4800, timeout=5)
+		self.sendSerial = serial.Serial("COM8", 9600, timeout=5)
 		print "Serial Started"
 		
 		self.create_status_bar(self.gpsAlt)
