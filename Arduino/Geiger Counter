@@ -1,0 +1,29 @@
+int count = 0;   // for incoming serial data;
+double time;
+//1. read serial
+//2. count time
+//3. count ticks
+//3. print number of counts per minute
+
+
+void setup() {
+        Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
+}
+
+void loop() {
+     time = millis();
+     // send data only when you receive data:
+     if (Serial.available() > 0) {
+             if (Serial.read() > 0)
+                 count++;
+                 Serial.println(" ");
+                 Serial.print("[");
+                 //milliseconds divided by 1000 for seconds, and 60 for minutes
+                 Serial.print(time/60000,3);
+                 Serial.print(" minutes] ");
+                 Serial.print(count);
+                 Serial.print(" ticks");
+                  
+        }
+                 
+}
