@@ -14,8 +14,8 @@
 void logData()
 {
 	gyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-	//humd = myHumidity.readHumidity();
-	//ExternalTemp = myHumidity.readTemperature();
+	humd = myHumidity.readHumidity();
+	ExternalTemp = myHumidity.readTemperature();
 	ssLogger.print(millis());
 	ssLogger.print(',');
 	ssLogger.print(time);
@@ -64,7 +64,7 @@ void logData()
 	ssLogger.print(',');
 	ssLogger.println(analogRead(1));  //uv sensor
 }
-/*
+
 // Send data over radio
 void transmitData()
 { 
@@ -79,5 +79,5 @@ void transmitData()
 	Serial.print(",");
 	Serial.println(bmp.readTemperature());
 }
-*/
+
 
