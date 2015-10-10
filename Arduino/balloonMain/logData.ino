@@ -1,11 +1,25 @@
-// data format is: timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp
+// data format is: timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humdity,ExternalTemp,InternalTemp,visible light,UV,Giger counter
 // two timestamps, one in milliseconds since power up, second from gps
 // gps time in hhmmsscc UTC
 // lat, lon in millionths of a degree
 // GPS altitude in centimeters
+// baro altitude in meters
+// internal pressure in pascales
 // fix age in milliseconds
 // speed in 100ths of a knot
 // course in 100ths of a degree
+// accel in
+// gyro in 
+// mag in 
+// compass in degrees 
+// humdity in 
+// external temp in C
+// internal temp n C
+// visible light
+// UV in 
+// giger counter in 
+
+
 // pressure in pascals
 // temp in degrees C
 // BMP altitude in meters
@@ -28,7 +42,9 @@ void logData()
 	ssLogger.print(',');
 	ssLogger.print(gpsAlt);
 	ssLogger.print(',');
-	ssLogger.print(bmp.readAltitude());
+	ssLogger.print(baro.getAltitude());  //altitude 
+	ssLogger.print(',');
+        ssLogger.print(bmp.readPressure()); //internal pressure 
 	ssLogger.print(',');
 	ssLogger.print(fixAge);
 	ssLogger.print(',');
@@ -54,15 +70,19 @@ void logData()
 	ssLogger.print(',');
 	ssLogger.print(mz);
 	ssLogger.print(',');
-	ssLogger.print(humd);
+	ssLogger.print(humidity.readHumidity());
 	ssLogger.print(',');
-	ssLogger.print(ExternalTemp);
+	ssLogger.print(baro.getTemperature());  //external temp 
 	ssLogger.print(',');
 	ssLogger.print(bmp.readTemperature());  //Internal Temperature
 	ssLogger.print(',');
-	ssLogger.print(analogRead(0));  //solar cell
+	ssLogger.print(light.readVisible());  //visable light
 	ssLogger.print(',');
-	ssLogger.println(analogRead(1));  //uv sensor
+	ssLogger.print((light.readUV())/100.0);  //uv sensor
+        ssLogger.print(',');
+        ssLogger.print(gigercount);
+        ssLogger.print(',');
+        ssLogger.println(countsPerMinute);
 }
 /*
 // Send data over radio

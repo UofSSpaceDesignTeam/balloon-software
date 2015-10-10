@@ -11,6 +11,7 @@
 #include <Adafruit_BMP085.h>	// sparkfun pressure sensor
 #include <MPU6050.h>	// for gyro
 #include <LSM303.h>  // for compass
+#include <SparkFunHTU21D.h> // humidity 
 
 
 // create all the objects we will need
@@ -23,15 +24,21 @@ TinyGPS gps;
 MPU6050 gyro;
 Adafruit_MCP9808  temp;
 Adafruit_MPL3115A2 baro; // pressure sensor
-Adafruit_SI1145 uv;  
+Adafruit_SI1145 light;  
 Adafruit_BMP085 bmp;	// 2nd pressure sensor
-LSM303 compass; 
+LSM303 compass;
+HTU21D humidity; 
 
 // create global variables for use later
 long lat, lon, alt;	// gps position
 unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, time;
-unsigned long gpsAlt, ExternalTemp, InternalTemp, humd;	// gps and timing data
+unsigned long gpsAlt;	// gps and timing data
 int ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
+int ExternalTemp, InternalTemp, humd;
+int internalPressure, externalPressuer;
+int gigercount; // giger counter 
+float countsPerMinute; 
+
 // add more variables as needed
 
 unsigned long chars;
@@ -50,7 +57,8 @@ void setup()	// runs once at power up
 	Serial.begin(4800);	// main serial port for debug/radio interface
 	ssGPS.begin(9600);	// serial interface for the gps
 	ssLogger.begin(4800);	//serial interface for the DataLogger
-        //ssGiger.begin(9600);
+        //ssGiger.begin(9600);  //serial interface for giger counter 
+        
         // check if sensors start
 	gyro.initialize();	// set up IMU
 	if(!gyro.testConnection())
@@ -59,9 +67,14 @@ void setup()	// runs once at power up
 		ssLogger.println("BMP fail!");
         if(!baro.begin())
                 ssLogger.println("Barometer fail!");
-        //check temp, uv, compass
-
-	ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,bmpAlt,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,humd,ExternalTemp,InternalTemp,SolarCell Raw,UV Sensor Raw");
+        if(!light.begin())
+                ssLogger.println("light fail!");
+        if(!temp.begin())
+                ssLogger.println("temp fail!");
+        //start sensors
+        humidity.begin(); 
+  
+	ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV Sensor Raw,Giger counter");
 	lastLog = 0;
 	lastTransmit = 0;
 	lastPicture = 0;
@@ -72,6 +85,7 @@ void setup()	// runs once at power up
 	lon = 0; 
 	gpsAlt = 0;
 	time = 0;
+        countsPerMinute = 0; 
         ssGPS.listen();
 }
 
@@ -88,7 +102,15 @@ void loop()
 			gpsAlt = gps.altitude();
 		}
 	}
-	
+
+        //giger counter 
+        if (Serial.available() > 0) {
+             if (Serial.read() > 0)
+                 gigercount++;
+                 countsPerMinute = gigercount/(millis()/60000); 
+        }
+
+
 	if(millis() - lastLog > 10000)	// log data every 10 sec
 	{
 		lastLog = millis();
