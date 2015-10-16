@@ -15,15 +15,13 @@
 
 
 // create all the objects we will need
-// these may need to be changed 
-SoftwareSerial ssLogger(10,9);	// 9: datalogger out, 10: unused
-SoftwareSerial ssGPS(8,11);	 // 8: gps in, 11: unused
-//SoftwareSerial ssGiger();
-//SoftwareSerial ssTransmit();
+SoftwareSerial ssLogger(7,8);	
+SoftwareSerial ssGPS(9,10);	
+SoftwareSerial ssGiger(0,1);  
 
 TinyGPS gps;
 MPU6050 gyro;
-Adafruit_MCP9808  temp;
+//Adafruit_MCP9808  temp;
 Adafruit_MPL3115A2 baro; // pressure sensor
 Adafruit_SI1145 light;  
 Adafruit_BMP085 bmp;	// 2nd pressure sensor
@@ -35,8 +33,6 @@ long lat, lon, alt;	// gps position
 unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, time;
 unsigned long gpsAlt;	// gps and timing data
 int ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
-int ExternalTemp, InternalTemp, humd;
-int internalPressure, externalPressuer;
 int gigercount; // giger counter 
 float countsPerMinute; 
 
@@ -47,20 +43,31 @@ unsigned short sentences, failed;
 
 void setup()	// runs once at power up
 {
-	//pinMode(4, OUTPUT); //set up keycamera
+	pinMode(2, OUTPUT); //camra 1
+        pinMode(3,OUTPUT); // camra 2
+        pinMode(4,OUTPUT); // camra 3
+        pinMode(6,OUTPUT); // status LED
 	delay(100);	// wait for devices to power up
-	//digitalWrite(4, 0); //begin camera
+        //begin camera
+	digitalWrite(2,0);
+        digitalWrite(3,0);
+        digitalWrite(4,0);
 	delay(100);
-	//digitalWrite(4, 1);
+	digitalWrite(2, 1);
+        digitalWrite(3, 1);
+        digitalWrite(4, 1);
 	delay(2000);
-	//digitalWrite(4, 0);
+	digitalWrite(2, 0);
+        digitalWrite(3, 0);
+        digitalWrite(4, 0);
+
 	Wire.begin();	// fire up the I2C interface
 	Serial.begin(4800);	// main serial port for debug/radio interface
 	ssGPS.begin(9600);	// serial interface for the gps
 	ssLogger.begin(4800);	//serial interface for the DataLogger
-        //ssGiger.begin(9600);  //serial interface for giger counter 
+        ssGiger.begin(9600);  //serial interface for giger counter 
         
-        // check if sensors start
+        // start sensors
 	gyro.initialize();	// set up IMU
 	if(!gyro.testConnection())
 		ssLogger.println("Gyro fail!");
@@ -70,15 +77,15 @@ void setup()	// runs once at power up
                 ssLogger.println("Barometer fail!");
         if(!light.begin())
                 ssLogger.println("light fail!");
-        if(!temp.begin())
-                ssLogger.println("temp fail!");
+       // if(!temp.begin())
+        //        ssLogger.println("temp fail!");
         //start sensors
         humidity.begin(); 
+        
+        digitalWrite(6, 1); // turn on LED
   
 	ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV Sensor Raw,Giger counter");
 	lastLog = 0;
-	lastTransmit = 0;
-	lastPicture = 0;
 	fixAge = 0;
 	speed = 0;
 	course = 0;
@@ -105,13 +112,11 @@ void loop()
 	}
 
         //giger counter 
-        /*
         if (ssGiger.available() > 0) {
              if (ssGiger.read() > 0)
                  gigercount++;
                  countsPerMinute = gigercount/(millis()/60000); 
         }
-        */
 
 	if(millis() - lastLog > 10000)	// log data every 10 sec
 	{
@@ -119,12 +124,4 @@ void loop()
 		logData();
                 ssGPS.listen();
 	}
-       /*
-	if(millis() - lastTransmit > 5000) // transmit data every 1 sec
-	{
-		lastTransmit = millis();
-		transmitData();
-                ssGPS.listen();
-	}
-*/
 }

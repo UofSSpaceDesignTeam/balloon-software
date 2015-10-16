@@ -28,8 +28,6 @@
 void logData()
 {
 	gyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-	//humd = myHumidity.readHumidity();
-	//ExternalTemp = myHumidity.readTemperature();
 	ssLogger.print(millis());
 	ssLogger.print(',');
 	ssLogger.print(time);
@@ -84,20 +82,5 @@ void logData()
         ssLogger.print(',');
         ssLogger.println(countsPerMinute);
 }
-/*
-// Send data over radio
-void transmitData()
-{ 
-	ssTransmit.print("Gps:");
-	ssTransmit.print(lat/100);
-	ssTransmit.print(",");
-	ssTransmit.print(lon/-100);
-	ssTransmit.print(",");
-	ssTransmit.println(gpsAlt);
-	ssTransmit.print("Temp: ");
-	ssTransmit.print(baro.getTemperature());
-	ssTransmit.print(",");
-	ssTransmit.println(bmp.readTemperature());
-}
-*/
+
 
