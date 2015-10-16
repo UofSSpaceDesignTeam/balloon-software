@@ -88,16 +88,16 @@ void logData()
 // Send data over radio
 void transmitData()
 { 
-	Serial.print("G");
-	Serial.print(lat/100);
-	Serial.print(",");
-	Serial.print(lon/-100);
-	Serial.print(",");
-	Serial.println(gpsAlt);
-	Serial.print("T");
-	Serial.print(ExternalTemp);
-	Serial.print(",");
-	Serial.println(bmp.readTemperature());
+	ssTransmit.print("Gps:");
+	ssTransmit.print(lat/100);
+	ssTransmit.print(",");
+	ssTransmit.print(lon/-100);
+	ssTransmit.print(",");
+	ssTransmit.println(gpsAlt);
+	ssTransmit.print("Temp: ");
+	ssTransmit.print(baro.getTemperature());
+	ssTransmit.print(",");
+	ssTransmit.println(bmp.readTemperature());
 }
 */
 

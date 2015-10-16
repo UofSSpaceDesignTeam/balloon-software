@@ -19,6 +19,7 @@
 SoftwareSerial ssLogger(10,9);	// 9: datalogger out, 10: unused
 SoftwareSerial ssGPS(8,11);	 // 8: gps in, 11: unused
 //SoftwareSerial ssGiger();
+//SoftwareSerial ssTransmit();
 
 TinyGPS gps;
 MPU6050 gyro;
@@ -104,12 +105,13 @@ void loop()
 	}
 
         //giger counter 
-        if (Serial.available() > 0) {
-             if (Serial.read() > 0)
+        /*
+        if (ssGiger.available() > 0) {
+             if (ssGiger.read() > 0)
                  gigercount++;
                  countsPerMinute = gigercount/(millis()/60000); 
         }
-
+        */
 
 	if(millis() - lastLog > 10000)	// log data every 10 sec
 	{
@@ -117,8 +119,7 @@ void loop()
 		logData();
                 ssGPS.listen();
 	}
-        // not transmiting any more
-	/*
+       /*
 	if(millis() - lastTransmit > 5000) // transmit data every 1 sec
 	{
 		lastTransmit = millis();
