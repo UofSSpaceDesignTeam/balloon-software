@@ -15,13 +15,13 @@
 
 
 // create all the objects we will need
-SoftwareSerial ssLogger(7,8);	
-SoftwareSerial ssGPS(9,10);	
-SoftwareSerial ssGiger(0,1);  
+//Serial3 = Serial3;	
+//Serial2 = Serial2;	
+//Serial1 = Serial1; 
 
 TinyGPS gps;
 MPU6050 gyro;
-//Adafruit_MCP9808  temp;
+Adafruit_MCP9808  temp; // Internal temp 
 Adafruit_MPL3115A2 baro; // pressure sensor
 Adafruit_SI1145 light;  
 Adafruit_BMP085 bmp;	// 2nd pressure sensor
@@ -62,29 +62,29 @@ void setup()	// runs once at power up
         digitalWrite(4, 0);
 
 	Wire.begin();	// fire up the I2C interface
-	Serial.begin(4800);	// main serial port for debug/radio interface
-	ssGPS.begin(9600);	// serial interface for the gps
-	ssLogger.begin(4800);	//serial interface for the DataLogger
-        ssGiger.begin(9600);  //serial interface for giger counter 
+	//Serial.begin(4800);	// main serial port for debug/radio interface
+	Serial2.begin(9600);	// serial interface for the gps
+	Serial3.begin(9600);	//serial interface for the DataLogger
+        Serial1.begin(9600);  //serial interface for giger counter 
         
         // start sensors
 	gyro.initialize();	// set up IMU
 	if(!gyro.testConnection())
-		ssLogger.println("Gyro fail!");
+		Serial3.println("Gyro fail!");
 	if(!bmp.begin())
-		ssLogger.println("BMP fail!");
+		Serial3.println("BMP fail!");
         if(!baro.begin())
-                ssLogger.println("Barometer fail!");
+                Serial3.println("Barometer fail!");
         if(!light.begin())
-                ssLogger.println("light fail!");
-       // if(!temp.begin())
-        //        ssLogger.println("temp fail!");
+                Serial3.println("light fail!");
+        if(!temp.begin())
+                Serial3.println("temp fail!");
         //start sensors
         humidity.begin(); 
         
-        digitalWrite(6, 1); // turn on LED
+        digitalWrite(5, 1); // turn on LED
   
-	ssLogger.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV Sensor Raw,Giger counter");
+	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV Sensor Raw,Giger counter");
 	lastLog = 0;
 	fixAge = 0;
 	speed = 0;
@@ -94,14 +94,14 @@ void setup()	// runs once at power up
 	gpsAlt = 0;
 	time = 0;
         countsPerMinute = 0; 
-        ssGPS.listen();
+        //Serial2.listen();
 }
 
 void loop()
 {
-	while(ssGPS.available())	// update the gps
+	while(Serial2.available())	// update the gps
 	{
-		if(gps.encode(ssGPS.read()));
+		if(gps.encode(Serial2.read()));
 		{
 			gps.get_position(&lat,&lon,&fixAge);
 			gps.get_datetime(&date,&time);
@@ -112,8 +112,8 @@ void loop()
 	}
 
         //giger counter 
-        if (ssGiger.available() > 0) {
-             if (ssGiger.read() > 0)
+        if (Serial1.available() > 0) {
+             if (Serial1.read() > 0)
                  gigercount++;
                  countsPerMinute = gigercount/(millis()/60000); 
         }
@@ -122,6 +122,6 @@ void loop()
 	{
 		lastLog = millis();
 		logData();
-                ssGPS.listen();
+                //Serial2.listen();
 	}
 }
