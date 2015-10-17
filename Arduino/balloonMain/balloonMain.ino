@@ -1,6 +1,6 @@
 
 // grab all the libraries for sensors
-#include <AltSoftSerial.h>	// for gps
+//#include <AltSoftSerial.h>	// for gps
 #include <TinyGPS.h>	// for gps
 #include <I2Cdev.h>	
 #include <Wire.h>	
@@ -32,7 +32,7 @@ HTU21D humidity;
 long lat, lon, alt;	// gps position
 unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, time;
 unsigned long gpsAlt;	// gps and timing data
-int ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
+int16_t ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
 int gigercount; // giger counter 
 float countsPerMinute; 
 
@@ -46,7 +46,7 @@ void setup()	// runs once at power up
 	pinMode(2, OUTPUT); //camra 1
         pinMode(3,OUTPUT); // camra 2
         pinMode(4,OUTPUT); // camra 3
-        pinMode(6,OUTPUT); // status LED
+        pinMode(5,OUTPUT); // status LED
 	delay(100);	// wait for devices to power up
         //begin camera
 	digitalWrite(2,0);
