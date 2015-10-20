@@ -79,18 +79,12 @@ void setup()	// runs once at power up
                 Serial3.println("light fail!");
         if(!temp.begin())
                 Serial3.println("temp fail!");
+        //start sensors
         humidity.begin(); 
-        
-        //set up compass
-        compass.init();
-        compass.enableDefault();
-        compass.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
-        compass.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
-        
         
         digitalWrite(5, 1); // turn on LED
   
-	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV_Sensor_Raw,Giger_counter");
+	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV Sensor Raw,Giger counter");
 	lastLog = 0;
 	fixAge = 0;
 	speed = 0;

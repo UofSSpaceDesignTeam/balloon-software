@@ -68,20 +68,74 @@ void logData()
 	Serial3.print(',');
 	Serial3.print(mz);
 	Serial3.print(',');
-        compass.read();
-        Serial3.print(compass.heading());
-        Serial3.print(',');
 	Serial3.print(humidity.readHumidity());
 	Serial3.print(',');
 	Serial3.print(baro.getTemperature());  //external temp 
 	Serial3.print(',');
 	Serial3.print(bmp.readTemperature());  //Internal Temperature
 	Serial3.print(',');
-	Serial3.print(light.readUV());  //uv sensor
+	Serial3.print(light.readVisible());  //visable light
+	Serial3.print(',');
+	Serial3.print((light.readUV())/100.0);  //uv sensor
         Serial3.print(',');
-        Serial3.println(gigercount);
-        //Serial3.print(',');
-        //Serial3.println(countsPerMinute);
+        Serial3.print(gigercount);
+        Serial3.print(',');
+        Serial3.println(countsPerMinute);
+        /*
+	Serial.print(millis());
+	Serial.print(',');
+	Serial.print(time);
+	Serial.print(',');
+	Serial.print(date);
+	Serial.print(',');
+	Serial.print(lat);
+	Serial.print(',');
+	Serial.print(-1*lon);  //-1*lon b/c we know we're in the western hemisphere
+	Serial.print(',');
+	Serial.print(gpsAlt);
+	Serial.print(',');
+	Serial.print(baro.getAltitude());  //altitude 
+	Serial.print(',');
+        Serial.print(bmp.readPressure()); //internal pressure 
+	Serial.print(',');
+	Serial.print(fixAge);
+	Serial.print(',');
+	Serial.print(speed);
+	Serial.print(',');
+	Serial.print(course);
+	Serial.print(',');
+	Serial.print(ax);
+	Serial.print(',');
+	Serial.print(ay);
+	Serial.print(',');
+	Serial.print(az);
+	Serial.print(',');
+	Serial.print(gx);
+	Serial.print(',');
+	Serial.print(gy);
+	Serial.print(',');
+	Serial.print(gz);
+	Serial.print(',');
+	Serial.print(mx);
+	Serial.print(',');
+	Serial.print(my);
+	Serial.print(',');
+	Serial.print(mz);
+	Serial.print(',');
+	Serial.print(humidity.readHumidity());
+	Serial.print(',');
+	Serial.print(baro.getTemperature());  //external temp 
+	Serial.print(',');
+	Serial.print(bmp.readTemperature());  //Internal Temperature
+	Serial.print(',');
+	Serial.print(light.readVisible());  //visable light
+	Serial.print(',');
+	Serial.print((light.readUV())/100.0);  //uv sensor
+        Serial.print(',');
+        Serial.print(gigercount);
+        Serial.print(',');
+        Serial.println(countsPerMinute);
+        */
 }
 
 
