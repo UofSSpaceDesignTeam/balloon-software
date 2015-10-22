@@ -15,9 +15,10 @@
 
 
 // create all the objects we will need
-//Serial3 = Serial3;	
-//Serial2 = Serial2;	
-//Serial1 = Serial1; 
+//giger = Serial1; 
+//gps = Serial2;	
+//logger = Serial3;	
+
 
 TinyGPS gps;
 MPU6050 gyro;
@@ -36,7 +37,7 @@ int16_t ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
 int gigercount; // giger counter 
 float countsPerMinute; 
 
-// add more variables as needed
+boolean gyroRunning, bmpRunning, baroRunning, lightRunning, tempRunning; 
 
 unsigned long chars;
 unsigned short sentences, failed;
@@ -69,16 +70,42 @@ void setup()	// runs once at power up
         
         // start sensors
 	gyro.initialize();	// set up IMU
-	if(!gyro.testConnection())
+	if(!gyro.testConnection()) {
+                gyroRunning = false;  
 		Serial3.println("Gyro fail!");
-	if(!bmp.begin())
+        } else {
+                gyroRunning = true;
+        }
+        
+	if(!bmp.begin()) {
+                bmpRunning = false;  
 		Serial3.println("BMP fail!");
-        if(!baro.begin())
+        } else {
+                bmpRunning = true;
+        }
+        
+        if(!baro.begin()) {
+                baroRunning = false;  
                 Serial3.println("Barometer fail!");
-        if(!light.begin())
+
+        } else {
+                baroRunning = true;
+        }
+        
+        if(!light.begin()) {
+                lightRunning = false;  
                 Serial3.println("light fail!");
-        if(!temp.begin())
+        } else {
+                lightRunning = true;
+        }
+        
+        if(!temp.begin()) {
+                tempRunning = false;  
                 Serial3.println("temp fail!");
+        } else {
+                tempRunning = true;
+        }
+        
         humidity.begin(); 
         
         //set up compass
@@ -91,7 +118,7 @@ void setup()	// runs once at power up
         digitalWrite(5, 1); // turn on LED
   
 	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV_Sensor_Raw,Giger_counter");
-	lastLog = 0;
+        lastLog = 0;
 	fixAge = 0;
 	speed = 0;
 	course = 0;
@@ -100,7 +127,16 @@ void setup()	// runs once at power up
 	gpsAlt = 0;
 	time = 0;
         countsPerMinute = 0; 
-        //Serial2.listen();
+       
+       ax = 0;
+       ay = 0;
+       az = 0;
+       gx = 0;
+       gy = 0;
+       gz = 0;
+       mx = 0;
+       my = 0;
+       mz = 0;
 }
 
 void loop()

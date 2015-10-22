@@ -27,7 +27,9 @@
 
 void logData()
 {
-	gyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+        if (gyroRunning) {
+	  gyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+        }
 	Serial3.print(millis());
 	Serial3.print(',');
 	Serial3.print(time);
@@ -40,9 +42,13 @@ void logData()
 	Serial3.print(',');
 	Serial3.print(gpsAlt);
 	Serial3.print(',');
-	Serial3.print(baro.getAltitude());  //altitude 
-	Serial3.print(',');
-        Serial3.print(bmp.readPressure()); //internal pressure 
+        if (baroRunning) {
+	  Serial3.print(baro.getAltitude());  //altitude 
+        }
+        Serial3.print(',');
+        if (bmpRunning) {
+          Serial3.print(bmp.readPressure()); //internal pressure
+        } 
 	Serial3.print(',');
 	Serial3.print(fixAge);
 	Serial3.print(',');
@@ -73,11 +79,17 @@ void logData()
         Serial3.print(',');
 	Serial3.print(humidity.readHumidity());
 	Serial3.print(',');
-	Serial3.print(baro.getTemperature());  //external temp 
+        if (baroRunning) {
+	  Serial3.print(baro.getTemperature());  //external temp 
+        }
 	Serial3.print(',');
-	Serial3.print(bmp.readTemperature());  //Internal Temperature
+        if (tempRunning) {
+          Serial3.print(temp.readTempC());  //Internal Temperature
+        }
 	Serial3.print(',');
-	Serial3.print(light.readUV());  //uv sensor
+        if (lightRunning) {
+	  Serial3.print(light.readUV()); //uv sensor
+        }
         Serial3.print(',');
         Serial3.println(gigercount);
         //Serial3.print(',');
