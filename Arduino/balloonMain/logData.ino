@@ -12,7 +12,7 @@
 // gyro in 
 // mag in 
 // compass in degrees 
-// humdity in 
+// humdity in %
 // external temp in C
 // internal temp n C
 // visible light

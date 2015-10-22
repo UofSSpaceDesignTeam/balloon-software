@@ -23,9 +23,9 @@
 TinyGPS gps;
 MPU6050 gyro;
 Adafruit_MCP9808  temp; // Internal temp 
-Adafruit_MPL3115A2 baro; // pressure sensor
+Adafruit_MPL3115A2 baro; // external sensor
 Adafruit_SI1145 light;  
-Adafruit_BMP085 bmp;	// 2nd pressure sensor
+Adafruit_BMP085 bmp;	// internal pressure sensor
 LSM303 compass;
 HTU21D humidity; 
 
@@ -64,9 +64,10 @@ void setup()	// runs once at power up
 
 	Wire.begin();	// fire up the I2C interface
 	//Serial.begin(4800);	// main serial port for debug/radio interface
+        -Serial1.begin(9600);  //serial interface for giger counter
 	Serial2.begin(9600);	// serial interface for the gps
 	Serial3.begin(9600);	//serial interface for the DataLogger
-        Serial1.begin(9600);  //serial interface for giger counter 
+        
         
         // start sensors
 	gyro.initialize();	// set up IMU
@@ -79,14 +80,14 @@ void setup()	// runs once at power up
         
 	if(!bmp.begin()) {
                 bmpRunning = false;  
-		Serial3.println("BMP fail!");
+		Serial3.println("Internal Barometer fail!");
         } else {
                 bmpRunning = true;
         }
         
         if(!baro.begin()) {
                 baroRunning = false;  
-                Serial3.println("Barometer fail!");
+                Serial3.println("external Barometer fail!");
 
         } else {
                 baroRunning = true;
