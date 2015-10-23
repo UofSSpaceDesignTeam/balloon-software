@@ -1,4 +1,3 @@
-
 // grab all the libraries for sensors
 //#include <AltSoftSerial.h>	// for gps
 #include <TinyGPS.h>	// for gps
@@ -7,7 +6,6 @@
 #include <SoftwareSerial.h>
 #include <Adafruit_MCP9808.h> //temp sensor
 #include <Adafruit_MPL3115A2.h>  //pressure sensor 
-#include <Adafruit_SI1145.h>   //uv sensor
 #include <Adafruit_BMP085.h>	// sparkfun pressure sensor
 #include <MPU6050.h>	// for gyro
 #include <LSM303.h>  // for compass
@@ -23,8 +21,7 @@
 TinyGPS gps;
 MPU6050 gyro;
 Adafruit_MCP9808  temp  = Adafruit_MCP9808(); // Internal temp 
-Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();// external sensor
-Adafruit_SI1145 light = Adafruit_SI1145();  
+Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();// external sensor 
 Adafruit_BMP085 bmp;	// internal pressure sensor
 LSM303 compass;
 HTU21D humidity; 
@@ -35,9 +32,9 @@ unsigned long fixAge, speed, course, lastLog, lastTransmit, lastPicture, date, t
 unsigned long gpsAlt;	// gps and timing data
 int16_t ax, ay, az, gx, gy, gz, mx, my, mz;	// gyro data
 int gigercount; // giger counter 
-float countsPerMinute; 
+unsigned long long countsPerMinute; 
 
-boolean gyroRunning, bmpRunning, baroRunning, lightRunning, tempRunning; 
+boolean gyroRunning, bmpRunning, baroRunning, tempRunning; 
 
 unsigned long chars;
 unsigned short sentences, failed;
@@ -74,36 +71,40 @@ void setup()	// runs once at power up
 	if(!gyro.testConnection()) {
                 gyroRunning = false;  
 		Serial3.println("Gyro fail!");
-        } else {
+        } 
+        else 
+        {
                 gyroRunning = true;
         }
         
-	if(!bmp.begin()) {
+	if(!bmp.begin()) 
+        {
                 bmpRunning = false;  
 		Serial3.println("Internal Barometer fail!");
-        } else {
+        } 
+        else 
+        {
                 bmpRunning = true;
         }
         
-        if(!baro.begin()) {
+        if(!baro.begin()) 
+        {
                 baroRunning = false;  
                 Serial3.println("external Barometer fail!");
 
-        } else {
+        } 
+        else 
+        {
                 baroRunning = true;
         }
         
-        if(!light.begin()) {
-                lightRunning = false;  
-                Serial3.println("light fail!");
-        } else {
-                lightRunning = true;
-        }
-        
-        if(!temp.begin()) {
+        if(!temp.begin()) 
+        {
                 tempRunning = false;  
                 Serial3.println("temp fail!");
-        } else {
+        } 
+        else 
+        {
                 tempRunning = true;
         }
         
@@ -118,7 +119,7 @@ void setup()	// runs once at power up
         
         digitalWrite(5, 1); // turn on LED
   
-	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,UV_Sensor_Raw,Giger_counter");
+	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,Giger_counter");
         lastLog = 0;
 	fixAge = 0;
 	speed = 0;

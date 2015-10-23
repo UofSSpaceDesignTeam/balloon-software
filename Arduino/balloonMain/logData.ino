@@ -86,10 +86,6 @@ void logData()
         if (tempRunning) {
           Serial3.print(temp.readTempC());  //Internal Temperature
         }
-	Serial3.print(',');
-        if (lightRunning) {
-	  Serial3.print(light.readUV()); //uv sensor
-        }
         Serial3.print(',');
         Serial3.println(gigercount);
         //Serial3.print(',');
