@@ -4,12 +4,9 @@
 #include <I2Cdev.h>	
 #include <Wire.h>	
 #include <SoftwareSerial.h>
-#include <Adafruit_MCP9808.h> //temp sensor
-#include <Adafruit_MPL3115A2.h>  //pressure sensor 
 #include <Adafruit_BMP085.h>	// sparkfun pressure sensor
 #include <MPU6050.h>	// for gyro
 #include <LSM303.h>  // for compass
-#include <SparkFunHTU21D.h> // humidity 
 
 
 // create all the objects we will need
@@ -20,8 +17,6 @@
 
 TinyGPS gps;
 MPU6050 gyro;
-Adafruit_MCP9808  temp  = Adafruit_MCP9808(); // Internal temp 
-Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();// external sensor 
 Adafruit_BMP085 bmp;	// internal pressure sensor
 LSM303 compass;
 HTU21D humidity; 
@@ -46,7 +41,7 @@ void setup()	// runs once at power up
   pinMode(4,OUTPUT); // camra 3
   pinMode(5,OUTPUT); // status LED
 	
-	delay(1500);	// wait for devices to power up
+	delay(300);	// wait for devices to power up
         //begin camera
 	digitalWrite(2,0);
   digitalWrite(3,0);
@@ -56,73 +51,39 @@ void setup()	// runs once at power up
 	digitalWrite(2, 1);
   digitalWrite(3, 1);
   digitalWrite(4, 1);
-	delay(4000);
+	delay(2000);
 	
 	digitalWrite(2, 0);
   digitalWrite(3, 0);
   digitalWrite(4, 0);
 
 	Wire.begin();	// fire up the I2C interface
-	//Serial.begin(4800);	// main serial port for debug/radio interface
+	Serial.begin(9600);	// main serial port for debug/radio interface
   Serial1.begin(9600);  //serial interface for giger counter
 	Serial2.begin(9600);	// serial interface for the gps
 	Serial3.begin(9600);	//serial interface for the DataLogger/Radio
         
         
-        // start sensors
+  // start sensors
 	gyro.initialize();	// set up IMU
-	if(!gyro.testConnection()) {
-                gyroRunning = false;  
-		Serial3.println("Gyro fail!");
-        } 
-        else 
-        {
-                gyroRunning = true;
-        }
-        
-	if(!bmp.begin()) 
-        {
-                bmpRunning = false;  
-		Serial3.println("Internal Barometer fail!");
-        } 
-        else 
-        {
-                bmpRunning = true;
-        }
-        
-        if(!baro.begin()) 
-        {
-                baroRunning = false;  
-                Serial3.println("external Barometer fail!");
-
-        } 
-        else 
-        {
-                baroRunning = true;
-        }
-        
-        if(!temp.begin()) 
-        {
-                tempRunning = false;  
-                Serial3.println("temp fail!");
-        } 
-        else 
-        {
-                tempRunning = true;
-        }
-        
-        humidity.begin(); 
-        
-        //set up compass
-        compass.init();
-        compass.enableDefault();
-        compass.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
-        compass.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
-        
-        
-        digitalWrite(5, 1); // turn on LED
+  Serial.println("1");
+	if(!gyro.testConnection()) Serial.println("Gyro fail!");     
+	Serial.println("2");
+	if(!bmp.begin()) Serial.println("Internal Barometer fail!");
+  Serial.println("3");
+  humidity.begin();
+  Serial.println("4");
   
-	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,baroAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,humd,ExternalTemp,InternalTemp,Giger_counter");
+  //set up compass
+  compass.init();
+  compass.enableDefault();
+  compass.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
+  compass.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
+  
+  
+  digitalWrite(5, 1); // turn on LED
+
+	Serial3.println("timestamp(millis),timestamp(gps),date,lat,lon,gpsAlt,internalPressure,fixage,speed,course,ax,ay,az,gx,gy,gz,mx,my,mz,compass,Giger_counter");
         lastLog = 0;
 	fixAge = 0;
 	speed = 0;
