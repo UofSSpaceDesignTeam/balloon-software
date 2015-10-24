@@ -42,28 +42,31 @@ unsigned short sentences, failed;
 void setup()	// runs once at power up
 {
 	pinMode(2, OUTPUT); //camra 1
-        pinMode(3,OUTPUT); // camra 2
-        pinMode(4,OUTPUT); // camra 3
-        pinMode(5,OUTPUT); // status LED
-	delay(100);	// wait for devices to power up
+  pinMode(3,OUTPUT); // camra 2
+  pinMode(4,OUTPUT); // camra 3
+  pinMode(5,OUTPUT); // status LED
+	
+	delay(1500);	// wait for devices to power up
         //begin camera
 	digitalWrite(2,0);
-        digitalWrite(3,0);
-        digitalWrite(4,0);
+  digitalWrite(3,0);
+  digitalWrite(4,0);
 	delay(100);
+	
 	digitalWrite(2, 1);
-        digitalWrite(3, 1);
-        digitalWrite(4, 1);
-	delay(2000);
+  digitalWrite(3, 1);
+  digitalWrite(4, 1);
+	delay(4000);
+	
 	digitalWrite(2, 0);
-        digitalWrite(3, 0);
-        digitalWrite(4, 0);
+  digitalWrite(3, 0);
+  digitalWrite(4, 0);
 
 	Wire.begin();	// fire up the I2C interface
 	//Serial.begin(4800);	// main serial port for debug/radio interface
-        Serial1.begin(9600);  //serial interface for giger counter
+  Serial1.begin(9600);  //serial interface for giger counter
 	Serial2.begin(9600);	// serial interface for the gps
-	Serial3.begin(9600);	//serial interface for the DataLogger
+	Serial3.begin(9600);	//serial interface for the DataLogger/Radio
         
         
         // start sensors
